@@ -86,8 +86,8 @@ export class Tokenizer {
             const token = lineTokens.tokens[j];
             tokens.push({
               row: i,
-              start: token.startIndex,
-              end: token.endIndex,
+              start: toByteIndex(line, token.startIndex),
+              end: toByteIndex(line, token.endIndex),
               scopes: token.scopes,
             });
           }
@@ -98,3 +98,7 @@ export class Tokenizer {
     );
   }
 }
+
+const toByteIndex = (str: string, idx: number): number => {
+  return (new TextEncoder()).encode(str.slice(0, idx)).length;
+};

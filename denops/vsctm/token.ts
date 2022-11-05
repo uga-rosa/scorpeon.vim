@@ -1,4 +1,11 @@
-import { Denops, g, IRawGrammar, join, oniguruma, vsctm } from "./deps.ts";
+import {
+  Denops,
+  expandGlobSync,
+  IRawGrammar,
+  join,
+  oniguruma,
+  vsctm,
+} from "./deps.ts";
 
 export interface Token {
   row: number;
@@ -7,27 +14,38 @@ export interface Token {
   scopes: string[];
 }
 
+interface Language {
+  id: string;
+  extensions: string[];
+}
+
+interface Grammar {
+  language: string;
+  scopeName: string;
+  path: string;
+}
+
 export class Tokenizer {
   denops: Denops;
+  languages: Language[];
+  grammars: Grammar[];
   registry: vsctm.Registry;
 
-  constructor(denops: Denops) {
+  constructor(denops: Denops, dir: string) {
     this.denops = denops;
+    [this.languages, this.grammars] = this.readPackageJsons(dir);
     this.registry = new vsctm.Registry({
       onigLib: this.getOnigLib(),
       loadGrammar: async (scopeName: string): Promise<IRawGrammar | null> => {
-        const matched = scopeName.match(/source\.(.+)/);
-        if (matched === null) {
+        const grammarPath = this.grammars
+          .filter((v) => v.scopeName == scopeName)
+          ?.[0]
+          ?.path;
+        if (grammarPath == null) {
           return null;
         }
-        const filetype = matched[1];
-        const grammarPath = await this.getGrammarPath(filetype);
-        if (grammarPath === null) {
-          return null;
-        }
-        return await Deno.readTextFile(grammarPath).then((
-          data: string,
-        ) => vsctm.parseRawGrammar(data, grammarPath));
+        return await Deno.readTextFile(grammarPath)
+          .then((data: string) => vsctm.parseRawGrammar(data, grammarPath));
       },
     });
   }
@@ -48,35 +66,61 @@ export class Tokenizer {
     });
   }
 
-  async getGrammarPath(filetype: string): Promise<string | null> {
-    if (!this.denops) {
-      return null;
-    }
-    const vsctmSyntaxesDir = await g.get(
-      this.denops,
-      "vsctmSyntaxesDir",
-    ) as string;
-    for await (const entry of Deno.readDir(vsctmSyntaxesDir)) {
-      if (
-        entry.name.endsWith(filetype + ".json") ||
-        entry.name.endsWith(filetype + ".plist")
-      ) {
-        return join(vsctmSyntaxesDir, entry.name);
+  readPackageJsons(dir: string): [Language[], Grammar[]] {
+    let languages: Language[] = [];
+    let grammars: Grammar[] = [];
+    for (const entry of expandGlobSync(`${dir}/*/package.json`)) {
+      const text = Deno.readTextFileSync(entry.path);
+      const jsonData = JSON.parse(text);
+      const _languages: Language[] | undefined = jsonData
+        ?.contributes
+        ?.languages
+        ?.filter((v: Language) => v.extensions);
+      if (_languages) {
+        languages = [...languages, ..._languages];
+      }
+      const _grammars: Grammar[] | undefined = jsonData
+        ?.contributes
+        ?.grammars
+        ?.filter((v: Grammar) => v.language)
+        ?.map((v: Grammar) => {
+          v.path = join(entry.path, "..", v.path);
+          return v;
+        });
+      if (_grammars) {
+        grammars = [...grammars, ..._grammars];
       }
     }
-    return null;
+    return [languages, grammars];
   }
 
-  async parse(filepath: string, filetype: string): Promise<Token[] | null> {
+  async parse(filepath: string): Promise<Token[]> {
     if (this.registry === undefined) {
-      return null;
+      throw new Error("Failed to initialize");
     }
-    const lines = Deno.readTextFileSync(filepath).split("\n");
-    return await this.registry.loadGrammar("source." + filetype).then(
+
+    const language = this.languages
+      .filter((v) => v.extensions.some((ext) => filepath.endsWith(ext)))
+      ?.[0]
+      ?.id;
+    if (language == null) {
+      throw new Error(`Path with unknown extension: ${filepath}`);
+    }
+    const scopeName = this.grammars
+      .filter((v) => v.language === language)
+      .sort((a, b) => a.scopeName.length - b.scopeName.length)
+      ?.[0]
+      ?.scopeName;
+    if (scopeName == null) {
+      throw new Error(`Unknown language: ${language}`);
+    }
+
+    return await this.registry.loadGrammar(scopeName).then(
       (grammar: vsctm.IGrammar | null): Token[] => {
-        if (grammar === null) {
+        if (grammar == null) {
           return [];
         }
+        const lines = Deno.readTextFileSync(filepath).split("\n");
         const tokens = [];
         let ruleStack = vsctm.INITIAL;
         for (let i = 0; i < lines.length; i++) {

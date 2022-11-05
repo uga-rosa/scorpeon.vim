@@ -1,22 +1,32 @@
-import { Denops, ensureString, execute, lo } from "./deps.ts";
+import { Denops, ensureString, g } from "./deps.ts";
 import { highlight } from "./highlight.ts";
 import { Tokenizer } from "./token.ts";
 
-export function main(denops: Denops): void {
+export async function main(denops: Denops): Promise<void> {
+  const extensions_path = await g.get(
+    denops,
+    "vsctm_extensions_path",
+  ) as string;
+  const tokenizer = new Tokenizer(denops, extensions_path);
+
   denops.dispatcher = {
-    async highlight(_: unknown): Promise<void> {
-      const filepath = await denops.call("expand", "%:p") as string;
-      const filetype = await lo.get(denops, "filetype") as string;
-      const tokenizer = new Tokenizer(denops);
-      const tokens = await tokenizer.parse(ensureString(filepath), filetype);
-      if (tokens !== null) {
-        highlight(denops, tokens);
+    async highlight(path: unknown): Promise<void> {
+      const filepath = ensureString(path);
+      if (!fileExists(filepath)) {
+        return;
       }
+      tokenizer.parse(filepath).then((tokens) =>
+        highlight(denops, tokens)
+      ).catch(_ => {});
     },
   };
-
-  execute(
-    denops,
-    `command! -nargs=0 VsctmHl call denops#request('${denops.name}', 'highlight', [])`,
-  );
 }
+
+const fileExists = (filepath: string): boolean => {
+  try {
+    const file = Deno.statSync(filepath);
+    return file.isFile;
+  } catch {
+    return false;
+  }
+};

@@ -10,46 +10,24 @@ Syntax highlight using VSCode's json/plist as is.
 
 # Usage
 
-First, the grammar definition file must be placed in the proper structure and tell to this plugin.
-Available formats are json and plist. Please place them directly under one directory with the name `{filetype}.json/plist`.
+This plugin reads the VSCode directory structure named `extensions/` as it is.
+Read `extensions/*/package.json` and resolve syntaxes path.
 
 ```sh
-❯ ls ~/syntaxes                          
-c.json  cpp.json  lua.json
+git clone https://github.com/microsoft/vscode.git --depth 1
+mkdir -p ~/.cache/vsctm/extensions
+mv vscode/extensions ~/.cache/vsctm/extensions
 ```
 
-In addition, check the contents of that definition file to make sure that the `scopeName` is `source.{filetype}`.
-
-```sh
-❯ head ~/syntaxes/lua.json 
-{
-        "information_for_contributors": [
-                "This file has been converted from https://github.com/sumneko/lua.tmbundle/blob/master/Syntaxes/Lua.plist",
-                "If you want to provide a fix or improvement, please create a pull request against the original repository.",
-                "Once accepted there, we are happy to receive an update request."
-        ],
-        "version": "https://github.com/sumneko/lua.tmbundle/commit/bc74f9230c3f07c0ecc1bc1727ad98d9e70aff5b",
-        "name": "Lua",
-        "scopeName": "source.lua",
-        "patterns": [
-```
-
-After proper placement, set the path to that directory in `g:vsctmSyntaxesDir`.
+You must define the following variable.
 
 ```vim
-let g:vsctmSyntaxesDir = expand('~/syntaxes')
+let g:vsctm_extensions_path = expand('~/.cache/vsctm/extensions')
 ```
 
-Once this is done, all that remains is to execute the command.
-Oops, make sure to turn off the default and tree-sitter highlights beforehand.
+Then you can enable/disable the highlighting with the following command.
 
 ```vim
-" TSDisable highlight
-syntax off
-```
-
-This command requires no arguments; it highlights by reference to `&ft` for `expand('%')`.
-
-```vim
-VsctmHl
+:VsctmHighlightEnable
+:VsctmHighlightDisable
 ```

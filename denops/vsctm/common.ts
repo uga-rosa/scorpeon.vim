@@ -1,10 +1,22 @@
-export const getHighlightGroup = (scopes: string[]): string | null => {
+export type Rule = { [scopeName: string]: string };
+
+export const getHighlightGroup = (
+  scopes: string[],
+  spc_rule: Rule,
+): string | null => {
+  const mergedRule = { ...defaultRule, ...spc_rule };
+  const ruleArray = Object.keys(mergedRule).map((key) => {
+    return {
+      scope: key,
+      hlGroup: mergedRule[key],
+    };
+  }).sort((a, b) => b.scope.length - a.scope.length);
+
   for (let i = scopes.length - 1; i > 0; i--) {
     const scope = scopes[i];
-    for (let j = 0; j < ruleKeys.length; j++) {
-      const rule = ruleKeys[j];
-      if (scope.startsWith(rule)) {
-        return defaultRule[rule];
+    for (const rule of ruleArray) {
+      if (scope.startsWith(rule.scope)) {
+        return rule.hlGroup;
       }
     }
   }
@@ -13,7 +25,7 @@ export const getHighlightGroup = (scopes: string[]): string | null => {
 
 // https://macromates.com/manual/en/language_grammars
 // :h group-name
-const defaultRule: { [scopeName: string]: string } = {};
+const defaultRule: Rule = {};
 defaultRule["comment"] = "Comment";
 
 defaultRule["constant"] = "Constant";
@@ -42,5 +54,3 @@ defaultRule["support.constant"] = "Constant";
 defaultRule["support.variable"] = "Identifier";
 
 defaultRule["variable"] = "Identifier";
-
-const ruleKeys = Object.keys(defaultRule).sort((a, b) => b.length - a.length);

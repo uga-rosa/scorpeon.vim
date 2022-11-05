@@ -1,4 +1,6 @@
-import { Denops, ensureString, g } from "./deps.ts";
+import { execute } from "https://deno.land/x/denops_std@v3.9.1/helper/execute.ts";
+import { Rule } from "./common.ts";
+import { Denops, ensureArray, ensureString, g } from "./deps.ts";
 import { highlight } from "./highlight.ts";
 import { Tokenizer } from "./token.ts";
 
@@ -8,6 +10,10 @@ export async function main(denops: Denops): Promise<void> {
     "vsctm_extensions_path",
   ) as string;
   const tokenizer = new Tokenizer(denops, extensions_path);
+  const user_rule = await g.get(
+    denops,
+    "vsctm_rule",
+  ) as { [scopeName: string]: Rule };
 
   denops.dispatcher = {
     async highlight(path: unknown, lines: unknown): Promise<void> {
@@ -16,8 +22,12 @@ export async function main(denops: Denops): Promise<void> {
         return;
       }
       await tokenizer.parse(filepath, ensureArray<string>(lines))
-        highlight(denops, tokens)
-      ).catch(_ => {});
+        .then(([tokens, scopeName]) => {
+          highlight(denops, tokens, user_rule[scopeName] || {});
+        })
+        .catch(() => {
+          execute(denops, 'syntax on')
+        });
     },
   };
 }

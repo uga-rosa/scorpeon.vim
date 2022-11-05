@@ -31,3 +31,16 @@ Then you can enable/disable the highlighting with the following command.
 :VsctmHighlightEnable
 :VsctmHighlightDisable
 ```
+
+# Customize
+
+It can be customized by specifying a highlight group corresponding to the scope name.
+For example, the following configuration will highlight commented parts of typescript with Error.
+
+```vim
+let g:vsctm_rule = {
+\    'source.ts': {
+\        'comment': 'Error'
+\    }
+\}
+```

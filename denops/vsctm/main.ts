@@ -10,12 +10,12 @@ export async function main(denops: Denops): Promise<void> {
   const tokenizer = new Tokenizer(denops, extensions_path);
 
   denops.dispatcher = {
-    async highlight(path: unknown): Promise<void> {
+    async highlight(path: unknown, lines: unknown): Promise<void> {
       const filepath = ensureString(path);
       if (!fileExists(filepath)) {
         return;
       }
-      await tokenizer.parse(filepath).then((tokens) =>
+      await tokenizer.parse(filepath, ensureArray<string>(lines))
         highlight(denops, tokens)
       ).catch(_ => {});
     },

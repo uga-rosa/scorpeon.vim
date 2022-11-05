@@ -104,7 +104,7 @@ export class Tokenizer {
     return [languages, grammars];
   }
 
-  async parse(filepath: string): Promise<Token[]> {
+  async parse(filepath: string, lines: string[]): Promise<[Token[], string]> {
     if (this.registry === undefined) {
       throw new Error("Failed to initialize");
     }
@@ -125,11 +125,10 @@ export class Tokenizer {
     }
 
     return await this.registry.loadGrammar(scopeName).then(
-      (grammar: vsctm.IGrammar | null): Token[] => {
+      (grammar: vsctm.IGrammar | null): [Token[], string] => {
         if (grammar == null) {
-          return [];
+          return [[], ""];
         }
-        const lines = Deno.readTextFileSync(filepath).split("\n");
         const tokens = [];
         let ruleStack = vsctm.INITIAL;
         for (let i = 0; i < lines.length; i++) {
@@ -146,7 +145,7 @@ export class Tokenizer {
           }
           ruleStack = lineTokens.ruleStack;
         }
-        return tokens;
+        return [tokens, scopeName];
       },
     );
   }

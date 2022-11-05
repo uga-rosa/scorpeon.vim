@@ -25,6 +25,13 @@ interface Grammar {
   path: string;
 }
 
+interface PackageJson {
+  contributes: {
+    languages: Language[];
+    grammars: Grammar[];
+  };
+}
+
 export class Tokenizer {
   denops: Denops;
   languages: Language[];
@@ -72,19 +79,20 @@ export class Tokenizer {
     let grammars: Grammar[] = [];
     for (const entry of expandGlobSync(`${dir}/*/package.json`)) {
       const text = Deno.readTextFileSync(entry.path);
-      const jsonData = JSON.parse(text);
+      const jsonData: PackageJson = JSON.parse(text);
       const _languages: Language[] | undefined = jsonData
         ?.contributes
         ?.languages
-        ?.filter((v: Language) => v.extensions);
+        ?.filter((v) => v.id && v.extensions);
       if (_languages) {
         languages = [...languages, ..._languages];
       }
       const _grammars: Grammar[] | undefined = jsonData
         ?.contributes
         ?.grammars
-        ?.filter((v: Grammar) => v.language)
-        ?.map((v: Grammar) => {
+        ?.filter((v) => v.language && v.scopeName && v.path)
+        ?.sort((a, b) => a.scopeName.length - b.scopeName.length)
+        ?.map((v) => {
           v.path = join(entry.path, "..", v.path);
           return v;
         });
@@ -109,7 +117,6 @@ export class Tokenizer {
     }
     const scopeName = this.grammars
       .filter((v) => v.language === language)
-      .sort((a, b) => a.scopeName.length - b.scopeName.length)
       ?.[0]
       ?.scopeName;
     if (scopeName == null) {

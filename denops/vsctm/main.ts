@@ -15,7 +15,7 @@ export async function main(denops: Denops): Promise<void> {
       if (!fileExists(filepath)) {
         return;
       }
-      tokenizer.parse(filepath).then((tokens) =>
+      await tokenizer.parse(filepath).then((tokens) =>
         highlight(denops, tokens)
       ).catch(_ => {});
     },

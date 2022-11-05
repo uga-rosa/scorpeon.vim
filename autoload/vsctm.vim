@@ -19,7 +19,7 @@ function! s:clear() abort
 endfunction
 
 function! s:highlight_enable() abort
-  call denops#request('vsctm', 'highlight', [expand('%:p')])
+  call denops#notify('vsctm', 'highlight', [expand('%:p')])
 endfunction
 
 function! vsctm#highlight_enable() abort

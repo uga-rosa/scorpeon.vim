@@ -15,8 +15,8 @@ Read `extensions/*/package.json` and resolve syntaxes path.
 
 ```sh
 git clone https://github.com/microsoft/vscode.git --depth 1
-mkdir -p ~/.cache/vsctm/extensions
-mv vscode/extensions ~/.cache/vsctm/extensions
+mkdir -p ~/.cache/vsctm
+mv vscode/extensions ~/.cache/vsctm
 ```
 
 You must define the following variable.

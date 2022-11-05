@@ -52,8 +52,9 @@ export class Tokenizer {
 
   async getOnigLib(): Promise<vsctm.IOnigLib> {
     const __dirname = new URL(".", import.meta.url).pathname;
-    const pluginRoot = join(__dirname, "../..");
-    const wasmBin = Deno.readFileSync(join(pluginRoot, "bin/onig.wasm"));
+    const wasmBin = Deno.readFileSync(
+      join(__dirname, "..", "..", "bin", "onig.wasm"),
+    );
     return await oniguruma.loadWASM(wasmBin).then(() => {
       return {
         createOnigScanner(patterns: string[]) {

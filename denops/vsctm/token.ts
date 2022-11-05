@@ -3,6 +3,7 @@ import {
   expandGlobSync,
   IRawGrammar,
   join,
+  fromFileUrl,
   oniguruma,
   vsctm,
 } from "./deps.ts";
@@ -58,7 +59,7 @@ export class Tokenizer {
   }
 
   async getOnigLib(): Promise<vsctm.IOnigLib> {
-    const __dirname = new URL(".", import.meta.url).pathname;
+    const __dirname = fromFileUrl(new URL(".", import.meta.url));
     const wasmBin = Deno.readFileSync(
       join(__dirname, "..", "..", "bin", "onig.wasm"),
     );

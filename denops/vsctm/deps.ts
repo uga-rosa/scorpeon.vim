@@ -1,7 +1,7 @@
 export { default as vsctm } from "npm:vscode-textmate@7.0.3";
 export type { IRawGrammar } from "npm:vscode-textmate@7.0.3/release/rawGrammar.d.ts";
 export { default as oniguruma } from "npm:vscode-oniguruma@1.6.2";
-export { join } from "https://deno.land/std@0.161.0/path/mod.ts";
+export { join, fromFileUrl } from "https://deno.land/std@0.161.0/path/mod.ts";
 export { expandGlobSync } from "https://deno.land/std@0.161.0/fs/mod.ts";
 export type { Denops } from "https://deno.land/x/denops_std@v3.9.1/mod.ts";
 export { execute } from "https://deno.land/x/denops_std@v3.9.1/helper/mod.ts";

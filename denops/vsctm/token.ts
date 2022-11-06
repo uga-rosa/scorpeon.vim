@@ -46,7 +46,7 @@ export class Tokenizer {
       onigLib: this.getOnigLib(),
       loadGrammar: async (scopeName: string): Promise<IRawGrammar | null> => {
         const grammarPath = this.grammars
-          .filter((v) => v.scopeName == scopeName)
+          .filter((v) => v.scopeName === scopeName)
           ?.[0]
           ?.path;
         if (grammarPath == null) {
@@ -105,7 +105,7 @@ export class Tokenizer {
   }
 
   async parse(filepath: string, lines: string[]): Promise<[Token[], string]> {
-    if (this.registry === undefined) {
+    if (this.registry == null) {
       throw new Error("Failed to initialize");
     }
 

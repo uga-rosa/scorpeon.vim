@@ -26,31 +26,30 @@ export const getHighlightGroup = (
 // https://macromates.com/manual/en/language_grammars
 // :h group-name
 const defaultRule: Rule = {};
-defaultRule["comment"] = "Comment";
+defaultRule["comment"] = "VsctmComment";
 
-defaultRule["constant"] = "Constant";
-defaultRule["constant.numeric"] = "Number";
-defaultRule["constant.numeric.float"] = "Float";
-defaultRule["constant.character"] = "Character";
-defaultRule["constant.language"] = "Boolean";
+defaultRule["constant"] = "VsctmConstant";
+defaultRule["constant.numeric"] = "VsctmConstantNumeric";
+defaultRule["constant.character"] = "VsctmConstantCharacter";
+defaultRule["constant.language"] = "VsctmConstantLanguage";
 
-defaultRule["keyword"] = "Statement";
-defaultRule["keyword.control"] = "Conditional";
-defaultRule["keyword.operator"] = "Operator";
+defaultRule["keyword"] = "VsctmKeyword";
+defaultRule["keyword.control"] = "VsctmKeywordControl";
+defaultRule["keyword.operator"] = "VsctmKeywordOperator";
 
-defaultRule["markup"] = "Underlined";
+defaultRule["markup"] = "VsctmMarkup";
 
-defaultRule["storage"] = "Type";
-defaultRule["storage.type"] = "Type";
-defaultRule["storage.modifier"] = "StorageClass";
+defaultRule["storage"] = "VsctmStorage";
+defaultRule["storage.type"] = "VsctmStorageType";
+defaultRule["storage.modifier"] = "VsctmStorageModifier";
 
-defaultRule["string"] = "String";
+defaultRule["string"] = "VsctmString";
 
-defaultRule["support"] = "Identifier";
-defaultRule["support.function"] = "Function";
-defaultRule["support.class"] = "Type";
-defaultRule["support.type"] = "Typedef";
-defaultRule["support.constant"] = "Constant";
-defaultRule["support.variable"] = "Identifier";
+defaultRule["support"] = "VsctmSupport";
+defaultRule["support.function"] = "VsctmSupportFunction";
+defaultRule["support.class"] = "VsctmSupportClass";
+defaultRule["support.type"] = "VsctmSupportType";
+defaultRule["support.constant"] = "VsctmSupportConstant";
+defaultRule["support.variable"] = "VsctmSupportVariable";
 
-defaultRule["variable"] = "Identifier";
+defaultRule["variable"] = "VsctmVariable";

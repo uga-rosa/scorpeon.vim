@@ -34,6 +34,10 @@ Then you can enable/disable the highlighting with the following command.
 
 # Customize
 
+You can customize default rule via defining highlight group.
+See `plugin/vsctm.vim` for default definitions.
+Highlight names correspond to scope names, and the general naming convention for scope names can be found [here](https://macromates.com/manual/en/language_grammars) (12.4).
+
 It can be customized by specifying a highlight group corresponding to the scope name.
 For example, the following configuration will highlight commented parts of typescript with Error.
 

@@ -37,7 +37,7 @@ function! vsctm#enable() abort
   augroup END
   call s:clear()
   call s:update()
-  syntax off
+  set syntax=OFF
 endfunction
 
 function! vsctm#disable() abort
@@ -45,7 +45,7 @@ function! vsctm#disable() abort
     au! * <buffer>
   augroup END
   call s:clear()
-  syntax on
+  set syntax=ON
 endfunction
 
 function! vsctm#show_scope() abort

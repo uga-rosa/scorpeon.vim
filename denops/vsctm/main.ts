@@ -24,7 +24,7 @@ export async function main(denops: Denops): Promise<void> {
           highlight(denops, tokens, user_rule[scopeName] || {});
         })
         .catch(() => {
-          denops.cmd("syntax on");
+          denops.cmd("set syntax=ON");
         });
     },
     async showScope(path: unknown, lines: unknown): Promise<void> {

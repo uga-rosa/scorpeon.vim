@@ -1,10 +1,13 @@
 **WIP**
 
-![example](https://user-images.githubusercontent.com/82267684/200187774-fd5dbdd6-f8c4-4177-9242-1fb21986007d.png)
+![example](https://user-images.githubusercontent.com/82267684/200194915-700c3830-1d88-4cc6-813f-905b55fb7eef.png)
 
 # dps-vsctm.vim
 
 Syntax highlight using VSCode's json/plist as is.
+
+VSCode is the most popular editor in the world and is officially supported by the largest number of language developers.
+This plugin allows VSCode's syntax highlighting definitions to be used directly in vim/neovim.
 
 # Requirements
 
@@ -25,8 +28,7 @@ Any VSCode extension supports this structure and can be easily added.
 
 ```sh
 # Add support for Nim.
-cd ~/.cache/vsctm/extensions
-git pull https://github.com/saem/vscode-nim.git
+git clone https://github.com/saem/vscode-nim.git ~/.cache/vsctm/extensions/nim
 ```
 
 You must define the following variable.
@@ -35,7 +37,7 @@ You must define the following variable.
 let g:vsctm_extensions_path = expand('~/.cache/vsctm/extensions')
 ```
 
-Then you can enable/disable the highlighting with the following command.
+Then you can enable/disable highlight with the following commands.
 Since highlight enable is buffer-local, it is recommended to use autocmd.
 
 ```vim
@@ -43,19 +45,13 @@ Since highlight enable is buffer-local, it is recommended to use autocmd.
 :VsctmHighlightDisable
 ```
 
-Example configuration for a neovim user to coexist with treesitter and this plugin.
-Enable this plugin only in typescript and Nim.
+Example configuration to automatically enable highlight in typescript and nim.
 
 ```vim
 augroup MyVsctm
   autocmd!
-  autocmd Filetype typescript,nim call s:vsctm_enable()
+  autocmd Filetype typescript,nim VsctmHighlightEnable
 augroup END
-
-function! s:vsctm_enable() abort
-  TSBufDisable highlight
-  VsctmHighlightEnable
-endfunction
 ```
 
 # Customize

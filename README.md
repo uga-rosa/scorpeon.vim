@@ -1,5 +1,7 @@
 **WIP**
 
+![example](https://user-images.githubusercontent.com/82267684/200187774-fd5dbdd6-f8c4-4177-9242-1fb21986007d.png)
+
 # dps-vsctm.vim
 
 Syntax highlight using VSCode's json/plist as is.
@@ -52,5 +54,5 @@ let g:vsctm_rule = {
 This command is useful to find out the scope name.
 
 ```vim
-VsctmShowScope
+:VsctmShowScope
 ```

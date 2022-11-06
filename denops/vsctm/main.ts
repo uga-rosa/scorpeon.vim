@@ -1,6 +1,5 @@
-import { Rule } from "./common.ts";
 import { Denops, ensureArray, ensureString, g } from "./deps.ts";
-import { highlight } from "./highlight.ts";
+import { highlight, Rule } from "./highlight.ts";
 import { Tokenizer } from "./token.ts";
 
 export async function main(denops: Denops): Promise<void> {

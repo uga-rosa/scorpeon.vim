@@ -27,7 +27,6 @@ else
 endif
 
 function! s:update() abort
-  call s:clear()
   call denops#notify('vsctm', 'highlight', [expand('%:p'), s:all_lines()])
 endfunction
 
@@ -36,12 +35,15 @@ function! vsctm#enable() abort
     au!
     au TextChanged,TextChangedI,TextChangedP <buffer> call s:update()
   augroup END
+  call s:clear()
   call s:update()
   syntax off
 endfunction
 
 function! vsctm#disable() abort
-  au! Vsctm * <buffer>
+  augroup Vsctm
+    au! * <buffer>
+  augroup END
   call s:clear()
   syntax on
 endfunction

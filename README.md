@@ -50,8 +50,16 @@ Example configuration to automatically enable highlight in typescript and nim.
 ```vim
 augroup MyVsctm
   autocmd!
-  autocmd Filetype typescript,nim VsctmHighlightEnable
+  autocmd FileType * call s:vsctm_enable()
 augroup END
+
+function! s:vsctm_enable() abort
+  if index(['typescript', 'nim'], &ft) != -1
+    VsctmHighlightEnable
+  else
+    VsctmHighlightDisable
+  endif
+endfunction
 ```
 
 # Customize

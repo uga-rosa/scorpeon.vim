@@ -21,6 +21,14 @@ mkdir -p ~/.cache/vsctm
 mv vscode/extensions ~/.cache/vsctm
 ```
 
+Any VSCode extension supports this structure and can be easily added.
+
+```sh
+# Add support for Nim.
+cd ~/.cache/vsctm/extensions
+git pull https://github.com/saem/vscode-nim.git
+```
+
 You must define the following variable.
 
 ```vim
@@ -55,4 +63,26 @@ This command is useful to find out the scope name.
 
 ```vim
 :VsctmShowScope
+```
+
+# Example
+
+Example configuration for a neovim user to coexist with treesitter and this plugin.
+Enable this plugin only in typescript and Nim.
+
+```vim
+augroup MyVsctm
+  autocmd!
+  autocmd Filetype * call s:auto_vsctm_highlight()
+augroup END
+
+function! s:auto_vsctm_highlight() abort
+  if index(['typescript', 'nim'], &ft) != -1
+    TSBufDisable highlight
+    VsctmHighlightEnable
+  else
+    VsctmHighlightDisable
+    TSBufEnable highlight
+  endif
+endfunction
 ```

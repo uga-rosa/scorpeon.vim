@@ -24,7 +24,6 @@ export const getHighlightGroup = (
 };
 
 // https://macromates.com/manual/en/language_grammars
-// :h group-name
 const defaultRule: Rule = {};
 defaultRule["comment"] = "VsctmComment";
 defaultRule["comment.line"] = "VsctmCommentLine";
@@ -35,6 +34,13 @@ defaultRule["constant.numeric"] = "VsctmConstantNumeric";
 defaultRule["constant.character"] = "VsctmConstantCharacter";
 defaultRule["constant.character.escape"] = "VsctmConstantCharacterEscape";
 defaultRule["constant.language"] = "VsctmConstantLanguage";
+
+defaultRule["entity.name.function"] = "VsctmEntityNameFunction";
+defaultRule["entity.name.type"] = "VsctmEntityNameType";
+defaultRule["entity.name.tag"] = "VsctmEntityNameTag";
+defaultRule["entity.name.section"] = "VsctmEntityNameSection";
+defaultRule["entity.other.inherited-class"] = "VsctmEntityOtherInheritedClass";
+defaultRule["entity.other.attribute-name"] = "VsctmEntityOtherAttributeName";
 
 defaultRule["keyword"] = "VsctmKeyword";
 defaultRule["keyword.control"] = "VsctmKeywordControl";

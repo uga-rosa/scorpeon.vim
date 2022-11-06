@@ -37,21 +37,27 @@ You must define the following variable.
 let g:vsctm_extensions_path = expand('~/.cache/vsctm/extensions')
 ```
 
-Then you can enable/disable highlight with the following commands.
-Since highlight enable is buffer-local, it is recommended to use autocmd.
+You can enable/disable highlight with the following commands.
+Enabling highlight is buffer-local.
 
 ```vim
 :VsctmHighlightEnable
 :VsctmHighlightDisable
 ```
 
-Example configuration to automatically enable highlight in typescript and nim.
+`g:vsctm_highlight` can be set to automatically enable it for specific file types.
+`enable` is a boolean or an array.
+Default `enable` is `v:false`.
+Highlight is enabled when the an array `enable` contains `&ft` or a boolean `enable` is `v:true`.
+When `enable` is set to `v:true`, `disable` is meaningful.
+`disable` is an array or a function (no arguments).
+If the array `disable` contains `&ft` or the function `disable` returns truthy, highlight is not enabled.
 
 ```vim
-augroup MyVsctm
-  autocmd!
-  autocmd FileType typescript,nim VsctmHighlightEnable
-augroup END
+let g:vsctm_highlight = {
+    \ 'enable': ['typescript', 'nim']
+    \ 'disable': []
+    \}
 ```
 
 # Customize

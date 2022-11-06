@@ -1,15 +1,42 @@
+if exists('g:loaded_vsctm')
+  finish
+endif
+let g:loaded_vsctm = 1
+
 if !exists('g:vsctm_extensions_path')
   echoerr 'g:vsctm_extensions_path is not set'
-endif
-if !exists('g:vsctm_rule')
-  let g:vsctm_rule = {}
 endif
 
 command! VsctmHighlightEnable call vsctm#enable()
 command! VsctmHighlightDisable call vsctm#disable()
-
 command! VsctmShowScope call vsctm#show_scope()
 
+let g:vsctm_rule = get(g:, 'vsctm_rule', {})
+
+let g:vsctm_highlight = get(g:, 'vsctm_highlight', {})
+let g:vsctm_highlight.enable = get(g:vsctm_highlight, 'enable', v:false)
+let g:vsctm_highlight.disable = get(g:vsctm_highlight, 'disable', [])
+
+augroup VsctmHighlight
+  autocmd!
+  autocmd FileType * call s:highlight()
+augroup END
+
+function! s:highlight() abort
+  let enable = g:vsctm_highlight.enable
+  let disable = g:vsctm_highlight.disable
+  if type(enable) == v:t_list && index(enable, &ft) != -1
+    VsctmHighlightEnable
+  elseif type(enable) == v:t_bool && enable
+    if type(disable) == v:t_list && index(disable, &ft) == -1
+      VsctmHighlightEnable
+    elseif type(disable) == v:t_func && !disable()
+      VsctmHighlightEnable
+    endif
+  endif
+endfunction
+
+" https://macromates.com/manual/en/language_grammars
 " :h group-name
 hi def link VsctmComment                   Comment
 hi def link VsctmCommentLine               Comment

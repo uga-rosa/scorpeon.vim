@@ -28,6 +28,32 @@ export async function main(denops: Denops): Promise<void> {
           denops.cmd("syntax on");
         });
     },
+    async showScope(path: unknown, lines: unknown): Promise<void> {
+      const filepath = ensureString(path);
+      if (!fileExists(filepath)) {
+        return;
+      }
+      await tokenizer.parse(filepath, ensureArray<string>(lines))
+        .then(([tokens, scopeName]) => {
+          denops.cmd("vnew");
+          denops.cmd("set buftype=nofile");
+          denops.call("setline", 1, `scopeName: ${scopeName}`);
+          denops.call(
+            "setline",
+            2,
+            tokens.map((token) => {
+              const scopes = token.scopes.join(", ");
+              const range =
+                `\t[${token.row}, ${token.start}] - [${token.row}, ${token.end}]`;
+              return [scopes, range];
+            }).flat(),
+          );
+        })
+        .catch((e) => {
+          denops.cmd("echom '[dps-vsctm.vim] Fail to parse'");
+          denops.cmd(`echom '[dps-vsctm.vim] ${e}'`);
+        });
+    },
   };
 }
 

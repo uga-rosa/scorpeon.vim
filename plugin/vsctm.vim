@@ -7,6 +7,7 @@ endif
 
 command! VsctmHighlightEnable call vsctm#highlight_enable()
 command! VsctmHighlightDisable call vsctm#highlight_disable()
+command! VsctmShowScope call vsctm#show_scope()
 
 hi def link VsctmComment                 Comment
 hi def link VsctmCommentLine             Comment

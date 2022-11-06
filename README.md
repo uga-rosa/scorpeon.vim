@@ -48,3 +48,9 @@ let g:vsctm_rule = {
 \    }
 \}
 ```
+
+This command is useful to find out the scope name.
+
+```vim
+VsctmShowScope
+```

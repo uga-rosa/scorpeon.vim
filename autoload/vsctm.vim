@@ -49,3 +49,7 @@ function! vsctm#highlight_disable() abort
   augroup END
   syntax on
 endfunction
+
+function! vsctm#show_scope() abort
+  call denops#request('vsctm', 'showScope', [expand('%:p'), s:all_lines()])
+endfunction

@@ -1,4 +1,3 @@
-import { execute } from "https://deno.land/x/denops_std@v3.9.1/helper/execute.ts";
 import { Rule } from "./common.ts";
 import { Denops, ensureArray, ensureString, g } from "./deps.ts";
 import { highlight } from "./highlight.ts";
@@ -26,7 +25,7 @@ export async function main(denops: Denops): Promise<void> {
           highlight(denops, tokens, user_rule[scopeName] || {});
         })
         .catch(() => {
-          execute(denops, 'syntax on')
+          denops.cmd("syntax on");
         });
     },
   };

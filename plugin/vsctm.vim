@@ -5,8 +5,9 @@ if !exists('g:vsctm_rule')
   let g:vsctm_rule = {}
 endif
 
-command! VsctmHighlightEnable call vsctm#highlight_enable()
-command! VsctmHighlightDisable call vsctm#highlight_disable()
+command! VsctmHighlightEnable call vsctm#enable()
+command! VsctmHighlightDisable call vsctm#disable()
+
 command! VsctmShowScope call vsctm#show_scope()
 
 " :h group-name

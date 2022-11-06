@@ -36,10 +36,26 @@ let g:vsctm_extensions_path = expand('~/.cache/vsctm/extensions')
 ```
 
 Then you can enable/disable the highlighting with the following command.
+Since highlight enable is buffer-local, it is recommended to use autocmd.
 
 ```vim
 :VsctmHighlightEnable
 :VsctmHighlightDisable
+```
+
+Example configuration for a neovim user to coexist with treesitter and this plugin.
+Enable this plugin only in typescript and Nim.
+
+```vim
+augroup MyVsctm
+  autocmd!
+  autocmd Filetype typescript,nim call s:vsctm_enable()
+augroup END
+
+function! s:vsctm_enable() abort
+  TSBufDisable highlight
+  VsctmHighlightEnable
+endfunction
 ```
 
 # Customize
@@ -63,26 +79,4 @@ This command is useful to find out the scope name.
 
 ```vim
 :VsctmShowScope
-```
-
-# Example
-
-Example configuration for a neovim user to coexist with treesitter and this plugin.
-Enable this plugin only in typescript and Nim.
-
-```vim
-augroup MyVsctm
-  autocmd!
-  autocmd Filetype * call s:auto_vsctm_highlight()
-augroup END
-
-function! s:auto_vsctm_highlight() abort
-  if index(['typescript', 'nim'], &ft) != -1
-    TSBufDisable highlight
-    VsctmHighlightEnable
-  else
-    VsctmHighlightDisable
-    TSBufEnable highlight
-  endif
-endfunction
 ```

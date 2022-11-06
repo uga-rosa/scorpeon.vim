@@ -26,27 +26,23 @@ else
   endfunction
 endif
 
-function! s:highlight_update() abort
-  syntax off
+function! s:update() abort
   call s:clear()
   call denops#notify('vsctm', 'highlight', [expand('%:p'), s:all_lines()])
 endfunction
 
-function! vsctm#highlight_enable() abort
-  call s:highlight_update()
+function! vsctm#enable() abort
   augroup Vsctm
-    autocmd!
-    autocmd TextChanged,TextChangedI,TextChangedP * call s:highlight_update()
-    autocmd BufRead * call s:highlight_update()
+    au!
+    au TextChanged,TextChangedI,TextChangedP <buffer> call s:update()
   augroup END
+  call s:update()
+  syntax off
 endfunction
 
-function! vsctm#highlight_disable() abort
+function! vsctm#disable() abort
+  au! Vsctm * <buffer>
   call s:clear()
-  augroup Vsctm
-    autocmd!
-    autocmd BufRead * call s:clear()
-  augroup END
   syntax on
 endfunction
 

@@ -17,6 +17,12 @@ else
   endfunction
 endif
 
+function! s:debounce(fn, delay) abort
+  let timer = get(s:, 'vsctm_timer', 0)
+  silent! call timer_stop(timer)
+  let s:vsctm_timer = timer_start(a:delay, { -> a:fn() })
+endfunction
+
 function! s:update_async() abort
   let path = expand('%:p')
   let all_line = s:get_all_line()
@@ -25,7 +31,7 @@ function! s:update_async() abort
 endfunction
 
 function! s:update() abort
-  call vsctm#util#debounce(funcref('s:update_async'), 100)
+  call s:debounce(funcref('s:update_async'), 100)
 endfunction
 
 function! vsctm#enable() abort

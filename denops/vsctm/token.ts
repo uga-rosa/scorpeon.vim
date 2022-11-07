@@ -92,7 +92,6 @@ export class Tokenizer {
         ?.contributes
         ?.grammars
         ?.filter((v) => v.language && v.scopeName && v.path)
-        ?.sort((a, b) => a.scopeName.length - b.scopeName.length)
         ?.map((v) => {
           v.path = join(entry.path, "..", v.path);
           return v;
@@ -101,6 +100,7 @@ export class Tokenizer {
         grammars = [...grammars, ..._grammars];
       }
     }
+    grammars = grammars.sort((a, b) => a.scopeName.length - b.scopeName.length)
     return [languages, grammars];
   }
 

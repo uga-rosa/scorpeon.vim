@@ -4,7 +4,7 @@ if has('nvim')
     call nvim_buf_clear_namespace(0, ns, 0, -1)
   endfunction
 
-  function! s:all_lines() abort
+  function! s:get_all_line() abort
     return nvim_buf_get_lines(0, 0, -1, v:false)
   endfunction
 else
@@ -12,13 +12,16 @@ else
     call prop_clear(1, line('$'))
   endfunction
 
-  function! s:all_lines() abort
+  function! s:get_all_line() abort
     return getline(1, '$')
   endfunction
 endif
 
 function! vsctm#update() abort
-  call denops#notify('vsctm', 'highlight', [expand('%:p'), s:all_lines()])
+  let path = expand('%:p')
+  let all_line = s:get_all_line()
+  call denops#plugin#wait_async('vsctm', {
+        \ -> denops#notify('vsctm', 'highlight', [path, all_line]) })
 endfunction
 
 function! vsctm#enable() abort

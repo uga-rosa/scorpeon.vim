@@ -1,11 +1,8 @@
 if has('nvim')
   let s:ns_id = nvim_create_namespace('vsctm')
 
-  function! vsctm#add_hl(group, pos) abort
-    " 0-index, [row, start, end]
-    for pos in a:pos
-      call nvim_buf_add_highlight(0, s:ns_id, a:group, pos[0], pos[1], pos[2])
-    endfor
+  function! vsctm#add_hl(group, row, start, end) abort
+    call nvim_buf_add_highlight(0, s:ns_id, a:group, a:row, a:start, a:end)
   endfunction
 
   function! s:clear() abort
@@ -16,14 +13,18 @@ if has('nvim')
     return nvim_buf_get_lines(0, 0, -1, v:false)
   endfunction
 else
-  function! vsctm#add_hl(group, pos) abort
-    " 0-index, [row, start, end]
-    let pos = map(a:pos, { _, p -> [p[0] + 1, p[1] + 1, p[2] - p[1]] })
-    call matchaddpos(a:group, pos)
+  function! vsctm#add_hl(group, row, start, end) abort
+    let row = a:row + 1
+    let col = a:start + 1
+    let len = a:end - a:start
+    if empty(prop_type_get(a:group))
+      call prop_type_add(a:group, {'highlight': a:group})
+    endif
+    call prop_add(row, col, {'length': len, 'type': a:group})
   endfunction
 
   function! s:clear() abort
-    call clearmatches()
+    call prop_clear(1, line('$'))
   endfunction
 
   function! s:all_lines() abort
@@ -38,7 +39,7 @@ endfunction
 function! vsctm#enable() abort
   augroup Vsctm
     au!
-    au TextChanged,TextChangedI,TextChangedP <buffer> call s:update()
+    au TextChanged,TextChangedI,TextChangedP,WinScrolled <buffer> call s:update()
   augroup END
   call s:clear()
   call s:update()

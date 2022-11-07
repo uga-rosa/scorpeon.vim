@@ -1,14 +1,29 @@
 import { Denops } from "./deps.ts";
 import { Token } from "./token.ts";
 
-export const highlight = (denops: Denops, tokens: Token[], spc_rule: Rule) => {
+export const highlight = (
+  denops: Denops,
+  tokens: Token[],
+  spc_rule: Rule,
+) => {
+  const hlGroupPos: { [hlGroup: string]: number[][] } = {};
   for (let i = 0; i < tokens.length; i++) {
     const token = tokens[i];
     const group = getHighlightGroup(token.scopes, spc_rule);
     if (group == null) {
       continue;
     }
-    denops.call("vsctm#add_hl", group, token.row, token.start, token.end);
+    if (!hlGroupPos[group]) {
+      hlGroupPos[group] = [];
+    }
+    hlGroupPos[group].push([
+      token.row,
+      token.start,
+      token.end,
+    ]);
+  }
+  for (const [group, pos] of Object.entries(hlGroupPos)) {
+    denops.call("vsctm#add_hl", group, pos)
   }
 };
 

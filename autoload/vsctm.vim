@@ -1,8 +1,11 @@
 if has('nvim')
   let s:ns_id = nvim_create_namespace('vsctm')
 
-  function! vsctm#add_hl(group, line, col_start, col_end) abort
-    call nvim_buf_add_highlight(0, s:ns_id, a:group, a:line, a:col_start, a:col_end)
+  function! vsctm#add_hl(group, pos) abort
+    " 0-index, [row, start, end]
+    for pos in a:pos
+      call nvim_buf_add_highlight(0, s:ns_id, a:group, pos[0], pos[1], pos[2])
+    endfor
   endfunction
 
   function! s:clear() abort
@@ -13,8 +16,10 @@ if has('nvim')
     return nvim_buf_get_lines(0, 0, -1, v:false)
   endfunction
 else
-  function! vsctm#add_hl(group, line, col_start, col_end) abort
-    call matchaddpos(a:group, [[a:line + 1, a:col_start + 1, a:col_end - a:col_start]])
+  function! vsctm#add_hl(group, pos) abort
+    " 0-index, [row, start, end]
+    let pos = map(a:pos, { _, p -> [p[0] + 1, p[1] + 1, p[2] - p[1]] })
+    call matchaddpos(a:group, pos)
   endfunction
 
   function! s:clear() abort

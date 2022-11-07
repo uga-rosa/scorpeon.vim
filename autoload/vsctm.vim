@@ -17,7 +17,7 @@ else
   endfunction
 endif
 
-function! vsctm#_update() abort
+function! s:update_async() abort
   let path = expand('%:p')
   let all_line = s:get_all_line()
   call denops#plugin#wait_async('vsctm', {
@@ -25,7 +25,7 @@ function! vsctm#_update() abort
 endfunction
 
 function! s:update() abort
-  call vsctm#util#debounce('call vsctm#_update()', 100)
+  call vsctm#util#debounce(funcref('s:update_async'), 100)
 endfunction
 
 function! vsctm#enable() abort

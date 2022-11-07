@@ -1,7 +1,6 @@
-let s:debounce_timers = {}
+let s:debounce_timer = 0
 
-function vsctm#util#debounce(expr, delay) abort
-  let timer = get(s:debounce_timers, a:expr, 0)
-  silent! call timer_stop(timer)
-  let s:debounce_timers[a:expr] = timer_start(a:delay, { -> execute(a:expr) })
+function vsctm#util#debounce(fn, delay) abort
+  silent! call timer_stop(s:debounce_timer)
+  let s:debounce_timer = timer_start(a:delay, { -> a:fn() })
 endfunction

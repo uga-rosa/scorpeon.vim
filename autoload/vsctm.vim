@@ -23,7 +23,7 @@ endfunction
 
 function! vsctm#enable() abort
   augroup Vsctm
-    autocmd!
+    autocmd! * <buffer>
     autocmd TextChanged,TextChangedI,TextChangedP,WinScrolled
           \ <buffer> call vsctm#util#debounce('call vsctm#update()', 100)
   augroup END

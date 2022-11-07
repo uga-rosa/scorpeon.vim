@@ -26,12 +26,12 @@ function! s:highlight() abort
   let enable = g:vsctm_highlight.enable
   let disable = g:vsctm_highlight.disable
   if type(enable) == v:t_list && index(enable, &ft) != -1
-    VsctmHighlightEnable
+    call vsctm#enable()
   elseif type(enable) == v:t_bool && enable
     if type(disable) == v:t_list && index(disable, &ft) == -1
-      VsctmHighlightEnable
+      call vsctm#enable()
     elseif type(disable) == v:t_func && !disable()
-      VsctmHighlightEnable
+      call vsctm#enable()
     endif
   endif
 endfunction

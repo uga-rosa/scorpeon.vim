@@ -1,4 +1,4 @@
-import { Denops } from "./deps.ts";
+import { decorate, Denops } from "./deps.ts";
 import { Token } from "./token.ts";
 
 export const highlight = async (
@@ -6,19 +6,26 @@ export const highlight = async (
   tokens: Token[],
   spc_rule: Rule,
 ) => {
-  const startRow = (await denops.call("line", "w0") as number) - 1
-  const endRow = (await denops.call("line", "w$") as number) - 1
+  const startRow = await denops.call("line", "w0") as number;
+  const endRow = await denops.call("line", "w$") as number;
+  const decorations = [];
   for (let i = 0; i < tokens.length; i++) {
     const token = tokens[i];
-    if (token.row < startRow || endRow < token.row) {
-      continue
+    if (token.line < startRow || endRow < token.line) {
+      continue;
     }
     const group = getHighlightGroup(token.scopes, spc_rule);
     if (group == null) {
       continue;
     }
-    denops.call("vsctm#add_hl", group, token.row, token.start, token.end)
+    decorations.push({
+      line: token.line,
+      column: token.column,
+      length: token.length,
+      highlight: group,
+    });
   }
+  decorate(denops, 0, decorations);
 };
 
 export type Rule = { [scopeName: string]: string };

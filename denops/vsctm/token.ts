@@ -1,17 +1,17 @@
 import {
   Denops,
   expandGlobSync,
+  fromFileUrl,
   IRawGrammar,
   join,
-  fromFileUrl,
   oniguruma,
   vsctm,
 } from "./deps.ts";
 
 export interface Token {
-  row: number;
-  start: number;
-  end: number;
+  line: number;
+  column: number;
+  length: number;
   scopes: string[];
 }
 
@@ -134,12 +134,13 @@ export class Tokenizer {
         for (let i = 0; i < lines.length; i++) {
           const line = lines[i];
           const lineTokens = grammar.tokenizeLine(line, ruleStack);
-          for (let j = 0; j < lineTokens.tokens.length; j++) {
-            const token = lineTokens.tokens[j];
+          for (const token of lineTokens.tokens) {
+            const startIndex = toByteIndex(line, token.startIndex);
+            const endIndex = toByteIndex(line, token.endIndex);
             tokens.push({
-              row: i,
-              start: toByteIndex(line, token.startIndex),
-              end: toByteIndex(line, token.endIndex),
+              line: i + 1,
+              column: startIndex + 1,
+              length: endIndex - startIndex,
               scopes: token.scopes,
             });
           }

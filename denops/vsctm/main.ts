@@ -43,7 +43,7 @@ export async function main(denops: Denops): Promise<void> {
             tokens.map((token) => {
               const scopes = token.scopes.join(", ");
               const range =
-                `\t[${token.row}, ${token.start}] - [${token.row}, ${token.end}]`;
+                `\t[${token.line}, ${token.column}] - [${token.line}, ${token.column + token.length}]`;
               return [scopes, range];
             }).flat(),
           );

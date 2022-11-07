@@ -71,7 +71,7 @@ hi def link VsctmMarkupRaw                 Underlined
 
 hi def link VsctmStorage                   Type
 hi def link VsctmStorageType               Type
-hi def link VsctmStorageModifier           StorageClass
+hi def link VsctmStorageModifier           Statement
 
 hi def link VsctmString                    String
 hi def link VsctmStringQuoted              String

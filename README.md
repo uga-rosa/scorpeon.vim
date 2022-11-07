@@ -1,6 +1,6 @@
 **WIP**
 
-![example](https://user-images.githubusercontent.com/82267684/200194915-700c3830-1d88-4cc6-813f-905b55fb7eef.png)
+![example](https://user-images.githubusercontent.com/82267684/200205553-488365ab-0cda-4ec4-8bfc-870e469e06c9.png)
 
 # dps-vsctm.vim
 

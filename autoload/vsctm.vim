@@ -17,21 +17,25 @@ else
   endfunction
 endif
 
-function! vsctm#update() abort
+function! vsctm#_update() abort
   let path = expand('%:p')
   let all_line = s:get_all_line()
   call denops#plugin#wait_async('vsctm', {
         \ -> denops#notify('vsctm', 'highlight', [path, all_line]) })
 endfunction
 
+function! s:update() abort
+  call vsctm#util#debounce('call vsctm#_update()', 100)
+endfunction
+
 function! vsctm#enable() abort
   augroup Vsctm
     autocmd! * <buffer>
     autocmd TextChanged,TextChangedI,TextChangedP,WinScrolled
-          \ <buffer> call vsctm#util#debounce('call vsctm#update()', 100)
+          \ <buffer> call s:update()
   augroup END
   call s:clear()
-  call vsctm#update()
+  call s:update()
   set syntax=OFF
 endfunction
 

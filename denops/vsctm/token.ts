@@ -100,7 +100,7 @@ export class Tokenizer {
         grammars = [...grammars, ..._grammars];
       }
     }
-    grammars = grammars.sort((a, b) => a.scopeName.length - b.scopeName.length)
+    grammars = grammars.sort((a, b) => a.scopeName.length - b.scopeName.length);
     return [languages, grammars];
   }
 

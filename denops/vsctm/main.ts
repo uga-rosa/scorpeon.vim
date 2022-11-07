@@ -1,4 +1,4 @@
-import { Denops, ensureArray, ensureString, g } from "./deps.ts";
+import { Denops, ensureArray, ensureNumber, ensureString, g } from "./deps.ts";
 import { highlight, Rule } from "./highlight.ts";
 import { Tokenizer } from "./token.ts";
 
@@ -14,25 +14,32 @@ export async function main(denops: Denops): Promise<void> {
   ) as { [scopeName: string]: Rule };
 
   denops.dispatcher = {
-    async highlight(path: unknown, lines: unknown): Promise<void> {
-      const filepath = ensureString(path);
-      if (!fileExists(filepath)) {
+    async highlight(
+      path_u: unknown,
+      lines_u: unknown,
+      bufnr_u: unknown,
+    ): Promise<void> {
+      const path = ensureString(path_u);
+      const lines = ensureArray<string>(lines_u);
+      const bufnr = ensureNumber(bufnr_u);
+      if (!fileExists(path)) {
         return;
       }
-      await tokenizer.parse(filepath, ensureArray<string>(lines))
+      await tokenizer.parse(path, lines)
         .then(([tokens, scopeName]) => {
-          highlight(denops, tokens, user_rule[scopeName] || {});
+          highlight(denops, bufnr, tokens, user_rule[scopeName] || {});
         })
         .catch(() => {
           denops.cmd("set syntax=ON");
         });
     },
-    async showScope(path: unknown, lines: unknown): Promise<void> {
-      const filepath = ensureString(path);
-      if (!fileExists(filepath)) {
+    async showScope(path_u: unknown, lines_u: unknown): Promise<void> {
+      const path = ensureString(path_u);
+      const lines = ensureArray<string>(lines_u);
+      if (!fileExists(path)) {
         return;
       }
-      await tokenizer.parse(filepath, ensureArray<string>(lines))
+      await tokenizer.parse(path, lines)
         .then(([tokens, scopeName]) => {
           denops.cmd("vnew");
           denops.cmd("set buftype=nofile");
@@ -43,7 +50,9 @@ export async function main(denops: Denops): Promise<void> {
             tokens.map((token) => {
               const scopes = token.scopes.join(", ");
               const range =
-                `\t[${token.line}, ${token.column}] - [${token.line}, ${token.column + token.length}]`;
+                `\t[${token.line}, ${token.column}] - [${token.line}, ${
+                  token.column + token.length
+                }]`;
               return [scopes, range];
             }).flat(),
           );

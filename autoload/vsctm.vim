@@ -26,12 +26,13 @@ endfunction
 function! s:update_async() abort
   let path = expand('%:p')
   let all_line = s:get_all_line()
+  let buf = bufnr()
   call denops#plugin#wait_async('vsctm', {
-        \ -> denops#notify('vsctm', 'highlight', [path, all_line]) })
+        \ -> denops#notify('vsctm', 'highlight', [path, all_line, buf]) })
 endfunction
 
 function! s:update() abort
-  call s:debounce(funcref('s:update_async'), 100)
+  call s:debounce({ -> s:update_async() }, 100)
 endfunction
 
 function! vsctm#enable() abort
@@ -54,5 +55,5 @@ function! vsctm#disable() abort
 endfunction
 
 function! vsctm#show_scope() abort
-  call denops#request('vsctm', 'showScope', [expand('%:p'), s:all_lines()])
+  call denops#request('vsctm', 'showScope', [expand('%:p'), s:get_all_line()])
 endfunction

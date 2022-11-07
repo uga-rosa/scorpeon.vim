@@ -3,6 +3,7 @@ import { Token } from "./token.ts";
 
 export const highlight = async (
   denops: Denops,
+  bufnr: number,
   tokens: Token[],
   spc_rule: Rule,
 ) => {
@@ -25,7 +26,7 @@ export const highlight = async (
       highlight: group,
     });
   }
-  decorate(denops, 0, decorations);
+  decorate(denops, bufnr, decorations);
 };
 
 export type Rule = { [scopeName: string]: string };

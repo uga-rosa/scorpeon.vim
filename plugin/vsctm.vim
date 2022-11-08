@@ -24,13 +24,13 @@ augroup END
 
 function! s:highlight() abort
   let enable = g:vsctm_highlight.enable
-  let disable = g:vsctm_highlight.disable
+  let Disable = { -> g:vsctm_highlight.disable() }
   if type(enable) == v:t_list && index(enable, &ft) != -1
     call vsctm#enable()
   elseif type(enable) == v:t_bool && enable
-    if type(disable) == v:t_list && index(disable, &ft) == -1
+    if type(Disable) == v:t_list && index(Disable, &ft) == -1
       call vsctm#enable()
-    elseif type(disable) == v:t_func && !disable()
+    elseif type(Disable) == v:t_func && !Disable()
       call vsctm#enable()
     endif
   endif

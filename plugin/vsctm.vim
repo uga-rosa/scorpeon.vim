@@ -48,6 +48,7 @@ hi def link VsctmConstantCharacter         String
 hi def link VsctmConstantCharacterEscape   String
 hi def link VsctmConstantLanguage          Boolean
 
+hi def link VsctmEntity                    Identifier
 hi def link VsctmEntityNameFunction        Function
 hi def link VsctmEntityNameType            Type
 hi def link VsctmEntityNameTag             Statement

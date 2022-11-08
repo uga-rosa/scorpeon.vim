@@ -66,6 +66,7 @@ defaultRule["constant.character"] = "VsctmConstantCharacter";
 defaultRule["constant.character.escape"] = "VsctmConstantCharacterEscape";
 defaultRule["constant.language"] = "VsctmConstantLanguage";
 
+defaultRule["entity"] = "VsctmEntity";
 defaultRule["entity.name.function"] = "VsctmEntityNameFunction";
 defaultRule["entity.name.type"] = "VsctmEntityNameType";
 defaultRule["entity.name.tag"] = "VsctmEntityNameTag";

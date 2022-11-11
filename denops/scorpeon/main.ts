@@ -5,12 +5,12 @@ import { Tokenizer } from "./token.ts";
 export async function main(denops: Denops): Promise<void> {
   const extensions_path = await g.get(
     denops,
-    "vsctm_extensions_path",
+    "scorpeon_extensions_path",
   ) as string;
   const tokenizer = new Tokenizer(denops, extensions_path);
   const user_rule = await g.get(
     denops,
-    "vsctm_rule",
+    "scorpeon_rule",
   ) as { [scopeName: string]: Rule };
 
   denops.dispatcher = {
@@ -58,8 +58,8 @@ export async function main(denops: Denops): Promise<void> {
           );
         })
         .catch((e) => {
-          denops.cmd("echom '[dps-vsctm.vim] Fail to parse'");
-          denops.cmd(`echom '[dps-vsctm.vim] ${e}'`);
+          denops.cmd("echom '[scorpeon.vim] Fail to parse'");
+          denops.cmd(`echom '[scorpeon.vim] ${e}'`);
         });
     },
   };

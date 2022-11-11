@@ -2,7 +2,7 @@
 
 ![example](https://user-images.githubusercontent.com/82267684/200205553-488365ab-0cda-4ec4-8bfc-870e469e06c9.png)
 
-# dps-vsctm.vim
+# scorpeon.vim
 
 Syntax highlight using VSCode's json/plist as is.
 
@@ -20,57 +20,62 @@ Read `extensions/*/package.json` and resolve syntaxes path.
 
 ```sh
 git clone https://github.com/microsoft/vscode.git --depth 1
-mkdir -p ~/.cache/vsctm
-mv vscode/extensions ~/.cache/vsctm
+mkdir -p ~/.cache/scorpeon
+mv vscode/extensions ~/.cache/scorpeon
 ```
 
 Any VSCode extension supports this structure and can be easily added.
 
 ```sh
 # Add support for Nim.
-git clone https://github.com/saem/vscode-nim.git ~/.cache/vsctm/extensions/nim
+git clone https://github.com/saem/vscode-nim.git ~/.cache/scorpeon/extensions/nim
 ```
 
 You must define the following variable.
 
 ```vim
-let g:vsctm_extensions_path = expand('~/.cache/vsctm/extensions')
+let g:scorpeon_extensions_path = expand('~/.cache/scorpeon/extensions')
 ```
 
 You can enable/disable highlight with the following commands.
 Enabling highlight is buffer-local.
 
 ```vim
-:VsctmHighlightEnable
-:VsctmHighlightDisable
+:ScorpeonHighlightEnable
+:ScorpeonHighlightDisable
 ```
 
-`g:vsctm_highlight` can be set to automatically enable it for specific file types.
+`g:scorpeon_highlight` can be set to automatically enable it for specific file types.
+
 `enable` is a boolean or an array.
 Default `enable` is `v:false`.
 Highlight is enabled when the an array `enable` contains `&ft` or a boolean `enable` is `v:true`.
-When `enable` is set to `v:true`, `disable` is meaningful.
+
+`disable` is meaningful when the result of `enable` evaluate to `v:true`.
 `disable` is an array or a function (no arguments).
-If the array `disable` contains `&ft` or the function `disable` returns truthy, highlight is not enabled.
+Default `disable` is `[]`.
+If an array `disable` contains `&ft` or the function `disable` returns truthy, highlight is not enabled.
+
+In the following example, it is only enabled when the file type is `typescript` or `nim` and the file size is less than 1MB.
 
 ```vim
-let g:vsctm_highlight = {
-    \ 'enable': ['typescript', 'nim']
-    \ 'disable': []
-    \}
+let g:scorpeon_highlight = {
+      \ 'enable': ['typescript', 'nim'],
+      \ 'disable': { -> getfsize(expand('%')) > 1 * 1024 * 1024 }
+      \ }
 ```
 
 # Customize
 
 You can customize default rule via defining highlight group.
-See `plugin/vsctm.vim` for default definitions.
+See `plugin/scorpeon.vim` for default definitions.
 Highlight names correspond to scope names, and the general naming convention for scope names can be found [here](https://macromates.com/manual/en/language_grammars) (12.4).
 
 It can be customized by specifying a highlight group corresponding to the scope name.
 For example, the following configuration will highlight commented parts of typescript with Error.
 
 ```vim
-let g:vsctm_rule = {
+let g:scorpeon_rule = {
 \    'source.ts': {
 \        'comment': 'Error'
 \    }
@@ -80,5 +85,5 @@ let g:vsctm_rule = {
 This command is useful to find out the scope name.
 
 ```vim
-:VsctmShowScope
+:ScorpeonShowScope
 ```

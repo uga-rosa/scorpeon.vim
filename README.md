@@ -1,6 +1,6 @@
 **WIP**
 
-![example](https://user-images.githubusercontent.com/82267684/200205553-488365ab-0cda-4ec4-8bfc-870e469e06c9.png)
+![example](https://user-images.githubusercontent.com/82267684/201442856-896b3c30-e755-432e-a7dd-b6073d34df2a.png)
 
 # scorpeon.vim
 

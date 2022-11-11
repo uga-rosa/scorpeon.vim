@@ -6,13 +6,13 @@ export const highlight = async (
   bufnr: number,
   tokens: Token[],
   spc_rule: Rule,
+  start: number,
+  end: number,
 ) => {
-  const startRow = await denops.call("line", "w0") as number;
-  const endRow = await denops.call("line", "w$") as number;
   const decorations = [];
   for (let i = 0; i < tokens.length; i++) {
     const token = tokens[i];
-    if (token.line < startRow || endRow < token.line) {
+    if (token.line < start || end < token.line) {
       continue;
     }
     const group = getHighlightGroup(token.scopes, spc_rule);
@@ -26,7 +26,7 @@ export const highlight = async (
       highlight: group,
     });
   }
-  decorate(denops, bufnr, decorations);
+  await decorate(denops, bufnr, decorations);
 };
 
 export type Rule = { [scopeName: string]: string };
@@ -71,7 +71,8 @@ defaultRule["entity.name.function"] = "ScorpeonEntityNameFunction";
 defaultRule["entity.name.type"] = "ScorpeonEntityNameType";
 defaultRule["entity.name.tag"] = "ScorpeonEntityNameTag";
 defaultRule["entity.name.section"] = "ScorpeonEntityNameSection";
-defaultRule["entity.other.inherited-class"] = "ScorpeonEntityOtherInheritedClass";
+defaultRule["entity.other.inherited-class"] =
+  "ScorpeonEntityOtherInheritedClass";
 defaultRule["entity.other.attribute-name"] = "ScorpeonEntityOtherAttributeName";
 
 defaultRule["keyword"] = "ScorpeonKeyword";

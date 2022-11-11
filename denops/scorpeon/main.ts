@@ -15,25 +15,39 @@ export async function main(denops: Denops): Promise<void> {
 
   denops.dispatcher = {
     async highlight(
-      path_u: unknown,
-      lines_u: unknown,
       bufnr_u: unknown,
+      path_u: unknown,
+      start_u: unknown,
+      end_u: unknown,
+      lines_u: unknown,
     ): Promise<void> {
-      const path = ensureString(path_u);
-      const lines = ensureArray<string>(lines_u);
       const bufnr = ensureNumber(bufnr_u);
+      const path = ensureString(path_u);
+      const start = ensureNumber(start_u);
+      const end = ensureNumber(end_u);
+      const lines = ensureArray<string>(lines_u);
       if (!fileExists(path)) {
         return;
       }
       await tokenizer.parse(path, lines)
         .then(([tokens, scopeName]) => {
-          highlight(denops, bufnr, tokens, user_rule[scopeName] || {});
+          highlight(
+            denops,
+            bufnr,
+            tokens,
+            user_rule[scopeName] || {},
+            start,
+            end,
+          );
         })
         .catch(() => {
           denops.cmd("set syntax=ON");
         });
     },
-    async showScope(path_u: unknown, lines_u: unknown): Promise<void> {
+    async showScope(
+      path_u: unknown,
+      lines_u: unknown,
+    ): Promise<void> {
       const path = ensureString(path_u);
       const lines = ensureArray<string>(lines_u);
       if (!fileExists(path)) {

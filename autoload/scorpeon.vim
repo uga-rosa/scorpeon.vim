@@ -4,7 +4,7 @@ if has('nvim')
     call nvim_buf_clear_namespace(0, ns, 0, -1)
   endfunction
 
-  function! s:get_all_line() abort
+  function! s:get_all_lines() abort
     return nvim_buf_get_lines(0, 0, -1, v:false)
   endfunction
 else
@@ -12,7 +12,7 @@ else
     call prop_clear(1, line('$'))
   endfunction
 
-  function! s:get_all_line() abort
+  function! s:get_all_lines() abort
     return getline(1, '$')
   endfunction
 endif
@@ -23,26 +23,38 @@ function! s:debounce(fn, delay) abort
   let s:scorpeon_timer = timer_start(a:delay, { -> a:fn() })
 endfunction
 
-function! s:update_async() abort
-  let path = expand('%:p')
-  let all_line = s:get_all_line()
+function! s:highlight_start() abort
   let buf = bufnr()
+  let path = expand('%:p')
+  let start = 1
+  let end = line('$')
+  let lines = s:get_all_lines()
   call denops#plugin#wait_async('scorpeon', {
-        \ -> denops#notify('scorpeon', 'highlight', [path, all_line, buf]) })
+        \ -> denops#notify('scorpeon', 'highlight', [buf, path, start, end, lines]) })
 endfunction
 
-function! s:update() abort
-  call s:debounce({ -> s:update_async() }, 100)
+function! s:highlight_update_async() abort
+  let buf = bufnr()
+  let path = expand('%:p')
+  let start = line('w0')
+  let end = line('w$')
+  let lines = s:get_all_lines()
+  call denops#plugin#wait_async('scorpeon', {
+        \ -> denops#notify('scorpeon', 'highlight', [buf, path, start, end, lines]) })
+endfunction
+
+function! s:highlight_update() abort
+  call s:debounce({ -> s:highlight_update_async() }, 100)
 endfunction
 
 function! scorpeon#enable() abort
   augroup Scorpeon
     autocmd! * <buffer>
     autocmd TextChanged,TextChangedI,TextChangedP,WinScrolled
-          \ <buffer> call s:update()
+          \ <buffer> call s:highlight_update()
   augroup END
   call s:clear()
-  call s:update()
+  call s:highlight_start()
   set syntax=OFF
 endfunction
 
@@ -55,7 +67,7 @@ function! scorpeon#disable() abort
 endfunction
 
 function! scorpeon#show_scope() abort
-  call denops#request('scorpeon', 'showScope', [expand('%:p'), s:get_all_line()])
+  call denops#request('scorpeon', 'showScope', [expand('%:p'), s:get_all_lines()])
 endfunction
 
 function! scorpeon#auto_highlight() abort

@@ -63,14 +63,14 @@ export async function main(denops: Denops): Promise<void> {
           denops.call(
             "setline",
             2,
-            tokens.map((token) => {
+            tokens.flatMap((token) => {
               const scopes = token.scopes.join(", ");
               const range =
                 `\t[${token.line}, ${token.column}] - [${token.line}, ${
                   token.column + token.length
                 }]`;
               return [scopes, range];
-            }).flat(),
+            }),
           );
         })
         .catch((e) => {

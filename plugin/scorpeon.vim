@@ -7,9 +7,8 @@ if !exists('g:scorpeon_extensions_path')
   echoerr 'g:scorpeon_extensions_path is not set'
 endif
 
-command! ScorpeonHighlightEnable call scorpeon#enable()
-command! ScorpeonHighlightDisable call scorpeon#disable()
-command! ScorpeonShowScope call scorpeon#show_scope()
+let s:path = g:scorpeon_extensions_path
+let g:scorpeon_extensions_path = type(s:path) == v:t_list ? s:path : [s:path]
 
 let g:scorpeon_rule = get(g:, 'scorpeon_rule', {})
 
@@ -21,6 +20,10 @@ augroup scorpeonHighlight
   autocmd!
   autocmd FileType * call scorpeon#auto_highlight()
 augroup END
+
+command! ScorpeonHighlightEnable call scorpeon#enable()
+command! ScorpeonHighlightDisable call scorpeon#disable()
+command! ScorpeonShowScope call scorpeon#show_scope()
 
 " https://macromates.com/manual/en/language_grammars
 " :h group-name

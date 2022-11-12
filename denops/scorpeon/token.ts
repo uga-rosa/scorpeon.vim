@@ -40,9 +40,9 @@ export class Tokenizer {
   grammars: Grammar[];
   registry: vsctm.Registry;
 
-  constructor(denops: Denops, dir: string) {
+  constructor(denops: Denops, dirs: string[]) {
     this.denops = denops;
-    [this.languages, this.grammars] = this.readPackageJsons(dir);
+    [this.languages, this.grammars] = this.readPackageJsons(dirs);
     this.registry = new vsctm.Registry({
       onigLib: this.getOnigLib(),
       loadGrammar: async (scopeName: string): Promise<IRawGrammar | null> => {
@@ -76,29 +76,31 @@ export class Tokenizer {
     });
   }
 
-  readPackageJsons(dir: string): [Language[], Grammar[]] {
+  readPackageJsons(dirs: string[]): [Language[], Grammar[]] {
     let languages: Language[] = [];
     let grammars: Grammar[] = [];
-    for (const entry of expandGlobSync(`${dir}/*/package.json`)) {
-      const text = Deno.readTextFileSync(entry.path);
-      const jsonData: PackageJson = JSON.parse(text);
-      const _languages: Language[] | undefined = jsonData
-        ?.contributes
-        ?.languages
-        ?.filter((v) => v.id && v.extensions);
-      if (_languages) {
-        languages = [...languages, ..._languages];
-      }
-      const _grammars: Grammar[] | undefined = jsonData
-        ?.contributes
-        ?.grammars
-        ?.filter((v) => v.language && v.scopeName && v.path)
-        ?.map((v) => {
-          v.path = join(entry.path, "..", v.path);
-          return v;
-        });
-      if (_grammars) {
-        grammars = [...grammars, ..._grammars];
+    for (const dir of dirs) {
+      for (const entry of expandGlobSync(`${dir}/*/package.json`)) {
+        const text = Deno.readTextFileSync(entry.path);
+        const jsonData: PackageJson = JSON.parse(text);
+        const _languages: Language[] | undefined = jsonData
+          ?.contributes
+          ?.languages
+          ?.filter((v) => v.id && v.extensions);
+        if (_languages) {
+          languages = [...languages, ..._languages];
+        }
+        const _grammars: Grammar[] | undefined = jsonData
+          ?.contributes
+          ?.grammars
+          ?.filter((v) => v.language && v.scopeName && v.path)
+          ?.map((v) => {
+            v.path = join(entry.path, "..", v.path);
+            return v;
+          });
+        if (_grammars) {
+          grammars = [...grammars, ..._grammars];
+        }
       }
     }
     grammars = grammars.sort((a, b) => a.scopeName.length - b.scopeName.length);

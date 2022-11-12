@@ -34,6 +34,7 @@ git clone https://github.com/saem/vscode-nim.git ~/.cache/scorpeon/extensions/ni
 You must define the following variable.
 
 ```vim
+" string or an array of string
 let g:scorpeon_extensions_path = expand('~/.cache/scorpeon/extensions')
 ```
 

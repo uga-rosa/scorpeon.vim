@@ -6,7 +6,7 @@ export async function main(denops: Denops): Promise<void> {
   const extensions_path = await g.get(
     denops,
     "scorpeon_extensions_path",
-  ) as string;
+  ) as string[];
   const tokenizer = new Tokenizer(denops, extensions_path);
   const user_rule = await g.get(
     denops,

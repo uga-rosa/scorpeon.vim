@@ -113,14 +113,14 @@ export class Tokenizer {
       ?.[0]
       ?.id;
     if (language == null) {
-      throw new Error(`Path with unknown extension: ${filepath}`);
+      return null
     }
     const scopeName = this.grammars
       .filter((v) => v.language === language)
       ?.[0]
       ?.scopeName;
     if (scopeName == null) {
-      throw new Error(`Unknown language: ${language}`);
+      return null
     }
     return scopeName;
   }

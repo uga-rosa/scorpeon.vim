@@ -23,7 +23,7 @@ function! s:debounce(fn, delay) abort
   let s:scorpeon_timer = timer_start(a:delay, { -> a:fn() })
 endfunction
 
-function! s:highlight_start() abort
+function! s:highlight_start_async() abort
   let buf = bufnr()
   let path = expand('%:p')
   let start = 1
@@ -31,6 +31,10 @@ function! s:highlight_start() abort
   let lines = s:get_all_lines()
   call denops#plugin#wait_async('scorpeon', {
         \ -> denops#notify('scorpeon', 'highlight', [buf, path, start, end, lines]) })
+endfunction
+
+function! s:highlight_start() abort
+  call s:debounce({ -> s:highlight_start_async() }, 100)
 endfunction
 
 function! s:highlight_update_async() abort
@@ -50,7 +54,7 @@ endfunction
 function! scorpeon#enable() abort
   augroup Scorpeon
     autocmd! * <buffer>
-    autocmd TextChanged,TextChangedI,TextChangedP,WinScrolled
+    autocmd TextChanged,TextChangedI,TextChangedP
           \ <buffer> call s:highlight_update()
   augroup END
   call s:clear()

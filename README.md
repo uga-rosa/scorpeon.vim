@@ -38,6 +38,8 @@ You must define the following variable.
 let g:scorpeon_extensions_path = expand('~/.cache/scorpeon/extensions')
 ```
 
+You can also use the plugin manager to manage them. See [advanced settings](#advanced-settings).
+
 You can enable/disable highlight with the following commands.
 Enabling highlight is buffer-local.
 
@@ -87,4 +89,36 @@ This command is useful to find out the scope name.
 
 ```vim
 :ScorpeonShowScope
+```
+
+# Advanced settings
+
+Here is an example of managing with dein.vim.
+
+```vim
+let g:scorpeon_extensions_path = [
+  \ expand('$CACHE/vscode/extensions'),
+  \ expand('$CACHE/scorpeon'),
+  \ ]
+```
+
+```toml
+[[plugins]]
+repo = 'microsoft/vscode'
+if = 0
+merged = 0
+type__depth = 1
+path = '$CACHE/vscode'
+
+[[plugins]]
+repo = 'oovm/vscode-toml'
+if = 0
+merged = 0
+path = '$CACHE/scorpeon/toml'
+
+[[plugins]]
+repo = 'emilast/vscode-logfile-highlighter'
+if = 0
+merged = 0
+path = '$CACHE/scorpeon/log'
 ```

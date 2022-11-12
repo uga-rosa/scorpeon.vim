@@ -31,6 +31,7 @@ export async function main(denops: Denops): Promise<void> {
       }
       const scopeName = tokenizer.getScopeName(path);
       if (scopeName == null) {
+        denops.cmd("set syntax=ON");
         return;
       }
       const spc_rule = user_rule[scopeName] || {};
@@ -41,10 +42,7 @@ export async function main(denops: Denops): Promise<void> {
         end,
         lines,
         spc_rule,
-      )
-        .catch(() => {
-          denops.cmd("set syntax=ON");
-        });
+      );
     },
     async showScope(
       path_u: unknown,

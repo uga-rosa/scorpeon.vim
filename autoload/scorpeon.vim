@@ -59,7 +59,7 @@ function! scorpeon#enable() abort
 endfunction
 
 function! scorpeon#disable() abort
-  augroup scorpeon
+  augroup Scorpeon
     autocmd! * <buffer>
   augroup END
   call s:clear()

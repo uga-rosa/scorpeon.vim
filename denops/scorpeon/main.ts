@@ -1,5 +1,5 @@
 import { Denops, ensureArray, ensureNumber, ensureString, g } from "./deps.ts";
-import { highlight, Rule } from "./highlight.ts";
+import { Rule } from "./highlight.ts";
 import { Tokenizer } from "./token.ts";
 
 export async function main(denops: Denops): Promise<void> {
@@ -29,17 +29,19 @@ export async function main(denops: Denops): Promise<void> {
       if (!fileExists(path)) {
         return;
       }
-      await tokenizer.parse(path, lines)
-        .then(([tokens, scopeName]) => {
-          highlight(
-            denops,
-            bufnr,
-            tokens,
-            user_rule[scopeName] || {},
-            start,
-            end,
-          );
-        })
+      const scopeName = tokenizer.getScopeName(path);
+      if (scopeName == null) {
+        return;
+      }
+      const spc_rule = user_rule[scopeName] || {};
+      await tokenizer.parse_highlight_by_line(
+        bufnr,
+        scopeName,
+        start,
+        end,
+        lines,
+        spc_rule,
+      )
         .catch(() => {
           denops.cmd("set syntax=ON");
         });

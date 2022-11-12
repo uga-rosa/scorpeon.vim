@@ -7,9 +7,10 @@ import {
   oniguruma,
   vsctm,
 } from "./deps.ts";
+import { Highlight, Rule } from "./highlight.ts";
 
 export interface Token {
-  line: number;
+  line?: number;
   column: number;
   length: number;
   scopes: string[];
@@ -104,11 +105,7 @@ export class Tokenizer {
     return [languages, grammars];
   }
 
-  async parse(filepath: string, lines: string[]): Promise<[Token[], string]> {
-    if (this.registry == null) {
-      throw new Error("Failed to initialize");
-    }
-
+  getScopeName(filepath: string): string | null {
     const language = this.languages
       .filter((v) => v.extensions.some((ext) => filepath.endsWith(ext)))
       ?.[0]
@@ -122,6 +119,17 @@ export class Tokenizer {
       ?.scopeName;
     if (scopeName == null) {
       throw new Error(`Unknown language: ${language}`);
+    }
+    return scopeName;
+  }
+
+  async parse(
+    filepath: string,
+    lines: string[],
+  ): Promise<[Token[], string]> {
+    const scopeName = this.getScopeName(filepath);
+    if (scopeName == null) {
+      return [[], ""];
     }
 
     return await this.registry.loadGrammar(scopeName).then(
@@ -147,6 +155,45 @@ export class Tokenizer {
           ruleStack = lineTokens.ruleStack;
         }
         return [tokens, scopeName];
+      },
+    );
+  }
+
+  async parse_highlight_by_line(
+    bufnr: number,
+    scopeName: string,
+    start: number,
+    end: number,
+    lines: string[],
+    spc_rule: Rule,
+  ) {
+    const highlight = new Highlight(this.denops, bufnr, spc_rule);
+
+    await this.registry.loadGrammar(scopeName).then(
+      (grammar: vsctm.IGrammar | null) => {
+        if (grammar == null) {
+          return;
+        }
+        let ruleStack = vsctm.INITIAL;
+        for (let i = 0; i < lines.length; i++) {
+          const line = lines[i];
+          const tokens = [];
+          const lineTokens = grammar.tokenizeLine(line, ruleStack);
+          for (const token of lineTokens.tokens) {
+            const startIndex = toByteIndex(line, token.startIndex);
+            const endIndex = toByteIndex(line, token.endIndex);
+            tokens.push({
+              column: startIndex + 1,
+              length: endIndex - startIndex,
+              scopes: token.scopes,
+            });
+          }
+          ruleStack = lineTokens.ruleStack;
+          const lnum = i + 1;
+          if (start <= lnum && lnum <= end) {
+            highlight.set(lnum, tokens);
+          }
+        }
       },
     );
   }

@@ -1,58 +1,54 @@
 import { decorate, Denops } from "./deps.ts";
 import { Token } from "./token.ts";
 
-export const highlight = async (
-  denops: Denops,
-  bufnr: number,
-  tokens: Token[],
-  spc_rule: Rule,
-  start: number,
-  end: number,
-) => {
-  const decorations = [];
-  for (let i = 0; i < tokens.length; i++) {
-    const token = tokens[i];
-    if (token.line < start || end < token.line) {
-      continue;
-    }
-    const group = getHighlightGroup(token.scopes, spc_rule);
-    if (group == null) {
-      continue;
-    }
-    decorations.push({
-      line: token.line,
-      column: token.column,
-      length: token.length,
-      highlight: group,
-    });
-  }
-  await decorate(denops, bufnr, decorations);
-};
-
 export type Rule = { [scopeName: string]: string };
 
-const getHighlightGroup = (
-  scopes: string[],
-  spc_rule: Rule,
-): string | null => {
-  const mergedRule = { ...defaultRule, ...spc_rule };
-  const ruleArray = Object.keys(mergedRule).map((key) => {
-    return {
-      scope: key,
-      hlGroup: mergedRule[key],
-    };
-  }).sort((a, b) => b.scope.length - a.scope.length);
+export class Highlight {
+  denops: Denops;
+  bufnr: number;
+  ruleArray: { scope: string; hlGroup: string }[];
 
-  for (let i = scopes.length - 1; i > 0; i--) {
-    const scope = scopes[i];
-    for (const rule of ruleArray) {
-      if (scope.startsWith(rule.scope)) {
-        return rule.hlGroup;
+  constructor(denops: Denops, bufnr: number, spc_rule: Rule) {
+    this.denops = denops;
+    this.bufnr = bufnr;
+    const rules = { ...defaultRule, ...spc_rule };
+    this.ruleArray = Object.keys(rules).map((key) => {
+      return {
+        scope: key,
+        hlGroup: rules[key],
+      };
+    }).sort((a, b) => b.scope.length - a.scope.length);
+  }
+
+  async set(line: number, tokens: Token[]) {
+    const decorations = [];
+    for (const token of tokens) {
+      const group = this.getHighlightGroup(token.scopes);
+      if (group == null) {
+        continue;
+      }
+      decorations.push({
+        line: line,
+        column: token.column,
+        length: token.length,
+        highlight: group,
+      });
+    }
+    await decorate(this.denops, this.bufnr, decorations);
+  }
+
+  getHighlightGroup(scopes: string[]): string | null {
+    for (let i = scopes.length - 1; i > 0; i--) {
+      const scope = scopes[i];
+      for (const rule of this.ruleArray) {
+        if (scope.startsWith(rule.scope)) {
+          return rule.hlGroup;
+        }
       }
     }
+    return null;
   }
-  return null;
-};
+}
 
 // https://macromates.com/manual/en/language_grammars
 const defaultRule: Rule = {};

@@ -7,10 +7,9 @@ import {
   oniguruma,
   vsctm,
 } from "./deps.ts";
-import { Highlight, Rule } from "./highlight.ts";
 
 export interface Token {
-  line?: number;
+  line: number;
   column: number;
   length: number;
   scopes: string[];
@@ -34,11 +33,18 @@ interface PackageJson {
   };
 }
 
+interface PrevData {
+  lines: string[];
+  stacks: vsctm.StateStack[];
+  tokens: Token[];
+}
+
 export class Tokenizer {
   denops: Denops;
   languages: Language[];
   grammars: Grammar[];
   registry: vsctm.Registry;
+  prevDatas: { [bufnr: number]: PrevData };
 
   constructor(denops: Denops, dirs: string[]) {
     this.denops = denops;
@@ -57,6 +63,7 @@ export class Tokenizer {
           .then((data: string) => vsctm.parseRawGrammar(data, grammarPath));
       },
     });
+    this.prevDatas = {};
   }
 
   async getOnigLib(): Promise<vsctm.IOnigLib> {
@@ -107,41 +114,58 @@ export class Tokenizer {
     return [languages, grammars];
   }
 
-  getScopeName(filepath: string): string | null {
+  async getScopeName(filepath: string): Promise<string> {
     const language = this.languages
       .filter((v) => v.extensions.some((ext) => filepath.endsWith(ext)))
       ?.[0]
       ?.id;
     if (language == null) {
-      return null
+      throw new Error(`Path with unknown extensions: ${filepath}`);
     }
     const scopeName = this.grammars
       .filter((v) => v.language === language)
       ?.[0]
       ?.scopeName;
     if (scopeName == null) {
-      return null
+      throw new Error(`Unknown language: ${language}`);
     }
-    return scopeName;
+    return await Promise.resolve(scopeName);
   }
 
   async parse(
-    filepath: string,
+    bufnr: number,
+    scopeName: string,
     lines: string[],
-  ): Promise<[Token[], string]> {
-    const scopeName = this.getScopeName(filepath);
-    if (scopeName == null) {
-      return [[], ""];
+  ): Promise<Token[]> {
+    if (!this.prevDatas[bufnr]) {
+      this.prevDatas[bufnr] = {
+        lines: [],
+        stacks: [],
+        tokens: [],
+      };
+    }
+    const prevData = this.prevDatas[bufnr];
+
+    const firstModifiedLine = lines.findIndex((e, i) =>
+      e !== prevData.lines[i]
+    );
+    if (firstModifiedLine === -1) {
+      // No change
+      return prevData.tokens;
+    } else {
+      prevData.tokens = prevData.tokens.filter((token) =>
+        token.line < firstModifiedLine
+      );
     }
 
     return await this.registry.loadGrammar(scopeName).then(
-      (grammar: vsctm.IGrammar | null): [Token[], string] => {
+      (grammar: vsctm.IGrammar | null): Token[] => {
         if (grammar == null) {
-          return [[], ""];
+          return [];
         }
         const tokens = [];
-        let ruleStack = vsctm.INITIAL;
-        for (let i = 0; i < lines.length; i++) {
+        let ruleStack = prevData.stacks[firstModifiedLine - 1] || vsctm.INITIAL;
+        for (let i = firstModifiedLine; i < lines.length; i++) {
           const line = lines[i];
           const lineTokens = grammar.tokenizeLine(line, ruleStack);
           for (const token of lineTokens.tokens) {
@@ -155,47 +179,11 @@ export class Tokenizer {
             });
           }
           ruleStack = lineTokens.ruleStack;
+          prevData.stacks[i] = lineTokens.ruleStack;
         }
-        return [tokens, scopeName];
-      },
-    );
-  }
-
-  async parse_highlight_by_line(
-    bufnr: number,
-    scopeName: string,
-    start: number,
-    end: number,
-    lines: string[],
-    spc_rule: Rule,
-  ) {
-    const highlight = new Highlight(this.denops, bufnr, spc_rule);
-
-    await this.registry.loadGrammar(scopeName).then(
-      (grammar: vsctm.IGrammar | null) => {
-        if (grammar == null) {
-          return;
-        }
-        let ruleStack = vsctm.INITIAL;
-        for (let i = 0; i < lines.length; i++) {
-          const line = lines[i];
-          const tokens = [];
-          const lineTokens = grammar.tokenizeLine(line, ruleStack);
-          for (const token of lineTokens.tokens) {
-            const startIndex = toByteIndex(line, token.startIndex);
-            const endIndex = toByteIndex(line, token.endIndex);
-            tokens.push({
-              column: startIndex + 1,
-              length: endIndex - startIndex,
-              scopes: token.scopes,
-            });
-          }
-          ruleStack = lineTokens.ruleStack;
-          const lnum = i + 1;
-          if (start <= lnum && lnum <= end) {
-            highlight.set(lnum, tokens);
-          }
-        }
+        prevData.lines = lines;
+        prevData.tokens = [...prevData.tokens, ...tokens];
+        return tokens;
       },
     );
   }

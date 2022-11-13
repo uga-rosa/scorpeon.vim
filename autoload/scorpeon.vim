@@ -70,10 +70,6 @@ function! scorpeon#disable() abort
   set syntax=ON
 endfunction
 
-function! scorpeon#show_scope() abort
-  call denops#request('scorpeon', 'showScope', [expand('%:p'), s:get_all_lines()])
-endfunction
-
 function! scorpeon#auto_highlight() abort
   let Enable = g:scorpeon_highlight.enable
   let Disable = g:scorpeon_highlight.disable
@@ -88,4 +84,11 @@ function! scorpeon#auto_highlight() abort
   if enable && !disable
     call scorpeon#enable()
   endif
+endfunction
+
+function! scorpeon#show_scope() abort
+  let buf = bufnr()
+  let path = expand('%:p')
+  let lines = s:get_all_lines()
+  call denops#request('scorpeon', 'showScope', [buf, path, lines])
 endfunction

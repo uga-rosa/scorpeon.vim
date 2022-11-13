@@ -20,24 +20,21 @@ export class Highlight {
     }).sort((a, b) => b.scope.length - a.scope.length);
   }
 
-  async set(line: number, tokens: Token[]) {
-    const decorations = [];
-    for (const token of tokens) {
-      const group = this.getHighlightGroup(token.scopes);
-      if (group == null) {
-        continue;
-      }
-      decorations.push({
-        line: line,
-        column: token.column,
-        length: token.length,
-        highlight: group,
-      });
-    }
+  async set(tokens: Token[]) {
+    const decorations = tokens
+      .map((token) => {
+        return {
+          line: token.line,
+          column: token.column,
+          length: token.length,
+          highlight: this.getHighlightGroup(token.scopes),
+        };
+      })
+      .filter((token) => token.highlight);
     await decorate(this.denops, this.bufnr, decorations);
   }
 
-  getHighlightGroup(scopes: string[]): string | null {
+  getHighlightGroup(scopes: string[]): string {
     for (let i = scopes.length - 1; i > 0; i--) {
       const scope = scopes[i];
       for (const rule of this.ruleArray) {
@@ -46,7 +43,7 @@ export class Highlight {
         }
       }
     }
-    return null;
+    return "";
   }
 }
 

@@ -169,16 +169,12 @@ export class Tokenizer {
     const prevData = this.prevDatas[bufnr];
 
     // First changed line. Parsing is only needed after this line.
-    const start = lines.findIndex((e, i) =>
-      e !== prevData.lines[i]
-    );
+    const start = lines.findIndex((e, i) => e !== prevData.lines[i]);
     if (start === -1) {
       // No change
-      return [prevData.tokens, -1];
+      return [prevData.tokens, start];
     } else {
-      prevData.tokens = prevData.tokens.filter((token) =>
-        token.line < start
-      );
+      prevData.tokens = prevData.tokens.filter((token) => token.line < start);
     }
 
     return await this.registry.loadGrammar(scopeName)

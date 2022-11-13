@@ -48,10 +48,17 @@ export async function main(denops: Denops): Promise<void> {
           );
           const spc_rule = user_rule[scopeName] || {};
           const highlight = new Highlight(denops, bufnr, spc_rule);
-          await denops.call("scorpeon#clear", start, end);
-          await highlight.set(
-            tokens.filter((t) => start <= t.line && t.line <= end),
-          );
+          if (start >= 0) {
+            await denops.call("scorpeon#clear", start, end);
+            await highlight.set(
+              tokens.filter((t) => start <= t.line && t.line <= end),
+            );
+          } else {
+            // No change
+            // Re-highlight entire buffer
+            await denops.call("scorpeon#clear", 0, -1);
+            await highlight.set(tokens);
+          }
         })
         .catch((e) => {
           console.log(`[scorpeon.vim] ${e}`);

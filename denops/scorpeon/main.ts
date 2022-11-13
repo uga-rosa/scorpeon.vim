@@ -72,6 +72,7 @@ export async function main(denops: Denops): Promise<void> {
           const tokens = await tokenizer.parse(bufnr, scopeName, lines);
           denops.cmd("vnew");
           denops.cmd("set buftype=nofile");
+          denops.cmd("setf scorpeon")
           denops.call("setline", 1, `scopeName: ${scopeName}`);
           denops.call(
             "setline",
@@ -88,7 +89,6 @@ export async function main(denops: Denops): Promise<void> {
         })
         .catch((e) => {
           console.log(`[scorpeon.vim] ${e}`);
-          denops.cmd("set syntax=ON");
         });
     },
   };

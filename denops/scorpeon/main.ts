@@ -28,13 +28,11 @@ export async function main(denops: Denops): Promise<void> {
     async highlight(
       bufnr_u: unknown,
       path_u: unknown,
-      start_u: unknown,
-      end_u: unknown,
       lines_u: unknown,
+      end_u: unknown,
     ): Promise<void> {
       const bufnr = ensureNumber(bufnr_u);
       const path = ensureString(path_u);
-      const start = ensureNumber(start_u);
       const end = ensureNumber(end_u);
       const lines = ensureArray<string>(lines_u);
       if (!fileExists(path)) {
@@ -43,10 +41,15 @@ export async function main(denops: Denops): Promise<void> {
 
       await tokenizer.getScopeName(path)
         .then(async (scopeName) => {
-          const tokens = await tokenizer.parse(bufnr, scopeName, lines);
+          const [tokens, start] = await tokenizer.parse(
+            bufnr,
+            scopeName,
+            lines,
+          );
           const spc_rule = user_rule[scopeName] || {};
           const highlight = new Highlight(denops, bufnr, spc_rule);
-          highlight.set(
+          await denops.call("scorpeon#clear", start, end);
+          await highlight.set(
             tokens.filter((t) => start <= t.line && t.line <= end),
           );
         })
@@ -69,10 +72,10 @@ export async function main(denops: Denops): Promise<void> {
 
       await tokenizer.getScopeName(path)
         .then(async (scopeName) => {
-          const tokens = await tokenizer.parse(bufnr, scopeName, lines);
+          const [tokens] = await tokenizer.parse(bufnr, scopeName, lines);
           denops.cmd("vnew");
           denops.cmd("set buftype=nofile");
-          denops.cmd("setf scorpeon")
+          denops.cmd("setf scorpeon");
           denops.call("setline", 1, `scopeName: ${scopeName}`);
           denops.call(
             "setline",

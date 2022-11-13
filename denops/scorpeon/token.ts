@@ -158,7 +158,7 @@ export class Tokenizer {
     bufnr: number,
     scopeName: string,
     lines: string[],
-  ): Promise<Token[]> {
+  ): Promise<[Token[], number]> {
     if (!this.prevDatas[bufnr]) {
       this.prevDatas[bufnr] = {
         lines: [],
@@ -168,27 +168,28 @@ export class Tokenizer {
     }
     const prevData = this.prevDatas[bufnr];
 
-    const firstModifiedLine = lines.findIndex((e, i) =>
+    // First changed line. Parsing is only needed after this line.
+    const start = lines.findIndex((e, i) =>
       e !== prevData.lines[i]
     );
-    if (firstModifiedLine === -1) {
+    if (start === -1) {
       // No change
-      return prevData.tokens;
+      return [prevData.tokens, -1];
     } else {
       prevData.tokens = prevData.tokens.filter((token) =>
-        token.line < firstModifiedLine
+        token.line < start
       );
     }
 
     return await this.registry.loadGrammar(scopeName)
-      .then((grammar): Token[] => {
+      .then((grammar): [Token[], number] => {
         if (grammar == null) {
-          return [];
+          return [[], 0];
         }
         const tokens = [];
-        let ruleStack = prevData.stacks[firstModifiedLine - 1] ||
+        let ruleStack = prevData.stacks[start - 1] ||
           vsctm.INITIAL;
-        for (let i = firstModifiedLine; i < lines.length; i++) {
+        for (let i = start; i < lines.length; i++) {
           const line = lines[i];
           const lineTokens = grammar.tokenizeLine(line, ruleStack);
           for (const itoken of lineTokens.tokens) {
@@ -207,7 +208,7 @@ export class Tokenizer {
           prevData.stacks[i] = lineTokens.ruleStack;
         }
         prevData.lines = lines;
-        return tokens;
+        return [tokens, start];
       });
   }
 }

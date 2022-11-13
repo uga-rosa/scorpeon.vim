@@ -1,21 +1,29 @@
 if has('nvim')
-  function! s:clear() abort
+  " 0-index
+  function! scorpeon#clear(start, end) abort
     let ns = nvim_create_namespace('denops_std:buffer:decoration:decorate')
-    call nvim_buf_clear_namespace(0, ns, 0, -1)
+    call nvim_buf_clear_namespace(0, ns, a:start, a:end)
   endfunction
 
   function! s:get_all_lines() abort
     return nvim_buf_get_lines(0, 0, -1, v:false)
   endfunction
 else
-  function! s:clear() abort
-    call prop_clear(1, line('$'))
+  " 0-index
+  function! scorpeon#clear(start, end) abort
+    let start = a:start + 1
+    let end = a:end == -1 ? line('$') : a:end + 1
+    call prop_clear(start, end)
   endfunction
 
   function! s:get_all_lines() abort
     return getline(1, '$')
   endfunction
 endif
+
+function! s:clear() abort
+  call scorpeon#clear(0, -1)
+endfunction
 
 function! s:debounce(fn, delay) abort
   let timer = get(s:, 'scorpeon_timer', 0)
@@ -26,11 +34,10 @@ endfunction
 function! s:highlight_start_async() abort
   let buf = bufnr()
   let path = expand('%:p')
-  let start = 1
-  let end = line('$')
   let lines = s:get_all_lines()
+  let end = line('$')
   call denops#plugin#wait_async('scorpeon', {
-        \ -> denops#notify('scorpeon', 'highlight', [buf, path, start, end, lines]) })
+        \ -> denops#notify('scorpeon', 'highlight', [buf, path, lines, end]) })
 endfunction
 
 function! s:highlight_start() abort
@@ -40,11 +47,10 @@ endfunction
 function! s:highlight_update_async() abort
   let buf = bufnr()
   let path = expand('%:p')
-  let start = line('w0')
-  let end = line('w$')
   let lines = s:get_all_lines()
+  let end = line('w$')
   call denops#plugin#wait_async('scorpeon', {
-        \ -> denops#notify('scorpeon', 'highlight', [buf, path, start, end, lines]) })
+        \ -> denops#notify('scorpeon', 'highlight', [buf, path, lines, end]) })
 endfunction
 
 function! s:highlight_update() abort

@@ -25,10 +25,12 @@ function! s:clear() abort
   call scorpeon#clear(0, -1)
 endfunction
 
-function! s:debounce(fn, delay) abort
-  let timer = get(s:, 'scorpeon_timer', 0)
+let s:scorpeon_timer = {}
+
+function! s:debounce(name, fn, delay) abort
+  let timer = get(s:scorpeon_timer, a:name, 0)
   silent! call timer_stop(timer)
-  let s:scorpeon_timer = timer_start(a:delay, { -> a:fn() })
+  let s:scorpeon_timer[a:name] = timer_start(a:delay, { -> a:fn() })
 endfunction
 
 function! s:highlight_start_async() abort
@@ -41,7 +43,7 @@ function! s:highlight_start_async() abort
 endfunction
 
 function! s:highlight_start() abort
-  call s:debounce({ -> s:highlight_start_async() }, 100)
+  call s:debounce('start', { -> s:highlight_start_async() }, 100)
 endfunction
 
 function! s:highlight_update_async() abort
@@ -54,7 +56,7 @@ function! s:highlight_update_async() abort
 endfunction
 
 function! s:highlight_update() abort
-  call s:debounce({ -> s:highlight_update_async() }, 100)
+  call s:debounce('update', { -> s:highlight_update_async() }, 100)
 endfunction
 
 function! scorpeon#enable() abort

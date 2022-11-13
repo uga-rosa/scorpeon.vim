@@ -158,34 +158,35 @@ export class Tokenizer {
       );
     }
 
-    return await this.registry.loadGrammar(scopeName).then(
-      (grammar: vsctm.IGrammar | null): Token[] => {
+    return await this.registry.loadGrammar(scopeName)
+      .then((grammar): Token[] => {
         if (grammar == null) {
           return [];
         }
         const tokens = [];
-        let ruleStack = prevData.stacks[firstModifiedLine - 1] || vsctm.INITIAL;
+        let ruleStack = prevData.stacks[firstModifiedLine - 1] ||
+          vsctm.INITIAL;
         for (let i = firstModifiedLine; i < lines.length; i++) {
           const line = lines[i];
           const lineTokens = grammar.tokenizeLine(line, ruleStack);
-          for (const token of lineTokens.tokens) {
-            const startIndex = toByteIndex(line, token.startIndex);
-            const endIndex = toByteIndex(line, token.endIndex);
-            tokens.push({
+          for (const itoken of lineTokens.tokens) {
+            const startIndex = toByteIndex(line, itoken.startIndex);
+            const endIndex = toByteIndex(line, itoken.endIndex);
+            const token = {
               line: i + 1,
               column: startIndex + 1,
               length: endIndex - startIndex,
-              scopes: token.scopes,
-            });
+              scopes: itoken.scopes,
+            };
+            tokens.push(token);
+            prevData.tokens.push(token);
           }
           ruleStack = lineTokens.ruleStack;
           prevData.stacks[i] = lineTokens.ruleStack;
         }
         prevData.lines = lines;
-        prevData.tokens = [...prevData.tokens, ...tokens];
         return tokens;
-      },
-    );
+      });
   }
 }
 

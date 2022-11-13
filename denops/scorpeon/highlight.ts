@@ -12,38 +12,42 @@ export class Highlight {
     this.denops = denops;
     this.bufnr = bufnr;
     const rules = { ...defaultRule, ...spc_rule };
-    this.ruleArray = Object.keys(rules).map((key) => {
-      return {
-        scope: key,
-        hlGroup: rules[key],
-      };
-    }).sort((a, b) => b.scope.length - a.scope.length);
+    this.ruleArray = Object.keys(rules)
+      .sort((a, b) => b.length - a.length)
+      .map((key) => {
+        return {
+          scope: key,
+          hlGroup: rules[key],
+        };
+      });
   }
 
   async set(tokens: Token[]) {
-    const decorations = tokens
-      .map((token) => {
-        return {
+    const decorations = [];
+    for (const token of tokens) {
+      const hlGroup = this.getHighlightGroup(token.scopes);
+      if (hlGroup) {
+        decorations.push({
           line: token.line,
           column: token.column,
           length: token.length,
-          highlight: this.getHighlightGroup(token.scopes),
-        };
-      })
-      .filter((token) => token.highlight);
+          highlight: hlGroup,
+        });
+      }
+    }
     await decorate(this.denops, this.bufnr, decorations);
   }
 
-  getHighlightGroup(scopes: string[]): string {
+  getHighlightGroup(scopes: string[]): string | undefined {
+    // The first element of scopes is `source.foo`, which is meaningless for highlight.
     for (let i = scopes.length - 1; i > 0; i--) {
       const scope = scopes[i];
-      for (const rule of this.ruleArray) {
-        if (scope.startsWith(rule.scope)) {
-          return rule.hlGroup;
-        }
+      const rule = this.ruleArray
+        .find((rule) => scope.startsWith(rule.scope));
+      if (rule) {
+        return rule.hlGroup;
       }
     }
-    return "";
   }
 }
 

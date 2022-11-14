@@ -15,8 +15,10 @@ This plugin allows VSCode's syntax highlighting definitions to be used directly 
 
 # Usage
 
-This plugin reads the VSCode directory structure named `extensions/` as it is.
-Read `extensions/*/package.json` and resolve syntaxes path.
+This plugin can use the directory structure of VSCode extensions as it is.
+Since VSCode's main body includes extensions for many well-known languages, I recommend to use it.
+
+To manage manually, do the following.
 
 ```sh
 git clone https://github.com/microsoft/vscode.git --depth 1
@@ -24,7 +26,7 @@ mkdir -p ~/.cache/scorpeon
 mv vscode/extensions ~/.cache/scorpeon
 ```
 
-Any VSCode extension supports this structure and can be easily added.
+Any VSCode extension can be easily added.
 
 ```sh
 # Add support for Nim.
@@ -38,7 +40,7 @@ You must define the following variable.
 let g:scorpeon_extensions_path = expand('~/.cache/scorpeon/extensions')
 ```
 
-You can also use the plugin manager to manage them. See [advanced settings](#advanced-settings).
+You can also use the plugin manager to manage them. See [advanced settings](#managing-extensions-with-deinvim).
 
 You can enable/disable highlight with the following commands.
 Enabling highlight is buffer-local.
@@ -93,9 +95,12 @@ This command is useful to find out the scope name.
 
 # Advanced settings
 
+## Managing extensions with dein.vim
+
 Here is an example of managing with dein.vim.
 
 ```vim
+let $CACHE = expand('~/.cache')
 let g:scorpeon_extensions_path = [
   \ expand('$CACHE/vscode/extensions'),
   \ expand('$CACHE/scorpeon'),
@@ -114,11 +119,13 @@ path = '$CACHE/vscode'
 repo = 'oovm/vscode-toml'
 if = 0
 merged = 0
+type__depth = 1
 path = '$CACHE/scorpeon/toml'
 
 [[plugins]]
 repo = 'emilast/vscode-logfile-highlighter'
 if = 0
 merged = 0
+type__depth = 1
 path = '$CACHE/scorpeon/log'
 ```

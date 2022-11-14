@@ -85,7 +85,7 @@ function! scorpeon#auto_highlight() abort
   let enable = v:false
   let enable = enable || (type(Enable) == v:t_list && index(Enable, &ft) != -1)
   let enable = enable || (type(Enable) == v:t_bool && Enable)
-  let disable = v:false
+  let disable = !enable
   let disable = disable || (type(Disable) == v:t_list && index(Disable, &ft) != -1)
   let disable = disable || (type(Disable) == v:t_func && Disable())
 

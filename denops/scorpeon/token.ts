@@ -1,7 +1,7 @@
 import {
+  cache_dir,
   Denops,
   expandGlobSync,
-  IRawGrammar,
   join,
   oniguruma,
   vsctm,
@@ -72,7 +72,7 @@ export class Tokenizer {
     [this.languages, this.grammars] = this.readPackageJsons(dirs);
     this.registry = new vsctm.Registry({
       onigLib: this.getOnigLib(),
-      loadGrammar: async (scopeName: string): Promise<IRawGrammar | null> => {
+      loadGrammar: async (scopeName: string) => {
         const grammarPath = this.grammars
           .filter((v) => v.scopeName === scopeName)
           ?.[0]
@@ -88,10 +88,15 @@ export class Tokenizer {
   }
 
   async getOnigLib(): Promise<vsctm.IOnigLib> {
-    const npmDir = await getNpmDir();
+    const cache = cache_dir();
+    if (cache == null) {
+      return Promise.reject("Can't get cache directory");
+    }
     const wasmBin = Deno.readFileSync(
       join(
-        npmDir,
+        cache,
+        "deno",
+        "npm",
         "registry.npmjs.org",
         "vscode-oniguruma",
         "1.6.2",
@@ -184,7 +189,7 @@ export class Tokenizer {
     }
 
     return await this.registry.loadGrammar(scopeName)
-      .then((grammar: IRawGrammar | null): [Token[], number] => {
+      .then((grammar: vsctm.IGrammar | null): [Token[], number] => {
         if (grammar == null) {
           return [[], 0];
         }
@@ -214,24 +219,6 @@ export class Tokenizer {
       });
   }
 }
-
-const getNpmDir = async (): Promise<string> => {
-  const process = Deno.run({
-    cmd: ["deno", "info"],
-    stdout: "piped",
-    stderr: "piped",
-  });
-  const output = await process.output();
-  process.close();
-
-  const head = "npm modules cache: ";
-
-  return new TextDecoder()
-    .decode(output)
-    .split("\n")
-    .filter((line) => line.startsWith(head))[0]
-    .replace(head, "");
-};
 
 const toByteIndex = (str: string, idx: number): number => {
   return (new TextEncoder()).encode(str.slice(0, idx)).length;

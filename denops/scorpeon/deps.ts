@@ -1,5 +1,4 @@
 export { default as vsctm } from "npm:vscode-textmate@7.0.3";
-export type { IRawGrammar } from "npm:vscode-textmate@7.0.3/release/rawGrammar.d.ts";
 export { default as oniguruma } from "npm:vscode-oniguruma@1.6.2";
 export { fromFileUrl, join } from "https://deno.land/std@0.161.0/path/mod.ts";
 export { expandGlobSync } from "https://deno.land/std@0.161.0/fs/mod.ts";
@@ -12,3 +11,4 @@ export {
   ensureObject,
   ensureString,
 } from "https://deno.land/x/unknownutil@v2.0.0/mod.ts";
+export { default as cache_dir } from "https://deno.land/x/dir@1.5.1/cache_dir/mod.ts";

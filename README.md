@@ -50,17 +50,14 @@ Enabling highlight is buffer-local.
 :ScorpeonHighlightDisable
 ```
 
-`g:scorpeon_highlight` can be set to automatically enable it for specific file types.
-
+`g:scorpeon_highlight` can be set to automatically enable it for specific file types.<br>
 `enable` is a boolean or an array.
 Default `enable` is `v:false`.
-Highlight is enabled when the an array `enable` contains `&ft` or a boolean `enable` is `v:true`.
-
+Highlight is enabled when the an array `enable` contains `&ft` or a boolean `enable` is `v:true`.<br>
 `disable` is meaningful when the result of `enable` evaluate to `v:true`.
 `disable` is an array or a function (no arguments).
 Default `disable` is `[]`.
-If an array `disable` contains `&ft` or the function `disable` returns truthy, highlight is not enabled.
-
+If an array `disable` contains `&ft` or the function `disable` returns truthy, highlight is not enabled.<br>
 In the following example, it is only enabled when the file type is `typescript` or `nim` and the file size is less than 1MB.
 
 ```vim

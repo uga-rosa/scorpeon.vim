@@ -1,0 +1,218 @@
+*scorpeon.txt*
+
+==============================================================================
+CONTENTS                                                     *scorpeon-contents*
+
+
+==============================================================================
+INTRODUCE                                                   *scorpeon-introduce*
+
+
+Syntax highlight using VSCode's json/plist as is.
+
+VSCode is the most popular editor in the world and is officially supported by
+the largest number of language developers. This plugin allows VSCode's syntax
+highlighting definitions to be used directly in vim/neovim.
+
+Requirements
+- denops.vim (https://github.com/vim-denops/denops.vim)
+
+Check denops.vim for the minimum supported version of vim/neovim. Basically,
+the latest released version is assumed.
+
+
+==============================================================================
+COMMANDS                                                     *scorpeon-commands*
+
+
+                                                      *:ScorpeonHighlightEnable*
+:ScorpeonHighlightEnable ~
+	Enable syntax highlight on the current buffer.
+	`set syntax=OFF` is automatically called, but if parsing fails (e.g.,
+	definition file not found), `set syntax=ON` is fallback. See |'syntax'|.
+
+
+                                                      *ScorpeonHighlightDisable*
+:ScorpeonHighlightDisable ~
+	Disable syntax highlight on the current buffer. `set syntax=ON` is
+	automatically called.
+
+
+                                                             *ScorpeonShowScope*
+:ScorpeonShowScope ~
+	The results of the parse of the current buffer are displayed. This is
+	useful for set highlight groups.
+
+
+==============================================================================
+VARIABLES                                                   *scorpeon-variables*
+
+                                                    *g:scorpeon_extensions_path*
+g:scorpeon_extensions_path ~
+	Required variable.
+
+	The path of the directory where the extension is located.
+	This plugin can use the directory structure of VSCode extensions as it
+	is. Since VSCode's main body includes extensions for many well-known
+	languages, I recommend to use it.
+
+	Here is an example of manual management.
+>
+	$ git clone https://github.com/microsoft/vscode.git --depth 1
+	$ mkdir -p ~/.cache/scorpeon
+	$ mv vscode/extensions ~/.cache/scorpeon
+<
+	Any VSCode extension can be easily added. Add support for Nim.
+>
+	$ git clone https://github.com/saem/vscode-nim.git \
+		~/.cache/scorpeon/extensions/nim
+<
+	You can also use the plugin manager to manage them. See
+	|scorpeon-advanced-settings|.
+
+
+                                                          *g:scorpeon_highlight*
+g:scorpeon_highlight ~
+	This variable can be set to automatically enable highlight for
+	specific file types. 'enable' is a boolean or an array. Default
+	'enable' is |v:false|. Highlight is enabled when the an array 'enable'
+	contains |'ft'| or a boolean 'enable' is |v:true|. 'disable' is
+	meaningful when the result of 'enable' evaluate to |v:true|. 'disable'
+	is an array or a function (no arguments). Default 'disable' is an
+	empty array. If an array 'disable' contains |'ft'| or the function
+	'disable' returns truthy, highlight is not enabled. In the following
+	example, highlight is only enabled when the file type is 'typescript'
+	or 'nim' and the file size is less than 1MB.
+>
+	let g:scorpeon_highlight = {
+	      \ 'enable': ['typescript', 'nim'],
+	      \ 'disable': { -> getfsize(expand('%')) > 1 * 1024 * 1024 }
+	      \ }
+<
+
+                                                               *g:scorpeon_rule*
+g:scorpeon_rule ~
+	Highlight can be customized by specifying a highlight group
+	corresponding to the scope name.
+	For example, the following configuration will highlight commented
+	parts of typescript with Error.
+>
+	let g:scorpeon_rule = {
+	\    'source.ts': {
+	\        'comment': 'Error'
+	\    }
+	\}
+<
+
+
+==============================================================================
+HIGHLIGHTS                                                 *scorpeon-highlights*
+
+Highlight names correspond to scope names, and the general naming convention
+for scope names can be found here.
+	https://macromates.com/manual/en/language_grammars (12.4).
+
+The default definitions are listed below (It can also be found in
+plugin/scorpeon.vim).
+>
+	hi def link ScorpeonComment                   Comment
+	hi def link ScorpeonCommentLine               Comment
+	hi def link ScorpeonCommentBlock              Comment
+
+	hi def link ScorpeonConstant                  Constant
+	hi def link ScorpeonConstantNumeric           Number
+	hi def link ScorpeonConstantCharacter         String
+	hi def link ScorpeonConstantCharacterEscape   String
+	hi def link ScorpeonConstantLanguage          Boolean
+
+	hi def link ScorpeonEntity                    Identifier
+	hi def link ScorpeonEntityNameFunction        Function
+	hi def link ScorpeonEntityNameType            Type
+	hi def link ScorpeonEntityNameTag             Statement
+	hi def link ScorpeonEntityNameSection         Delimiter
+	hi def link ScorpeonEntityOtherInheritedClass Type
+	hi def link ScorpeonEntityOtherAttributeName  Constant
+
+	hi def link ScorpeonKeyword                   Statement
+	hi def link ScorpeonKeywordControl            Conditional
+	hi def link ScorpeonKeywordOperator           Operator
+
+	hi def link ScorpeonMarkup                    Underlined
+	hi def link ScorpeonMarkupUnderline           Underlined
+	hi def link ScorpeonMarkupUnderlineLink       Underlined
+	hi def link ScorpeonMarkupBold                Underlined
+	hi def link ScorpeonMarkupHeading             Underlined
+	hi def link ScorpeonMarkupItalic              Underlined
+	hi def link ScorpeonMarkupList                Underlined
+	hi def link ScorpeonMarkupQuote               Underlined
+	hi def link ScorpeonMarkupRaw                 Underlined
+
+	hi def link ScorpeonStorage                   Type
+	hi def link ScorpeonStorageType               Type
+	hi def link ScorpeonStorageModifier           Statement
+
+	hi def link ScorpeonString                    String
+	hi def link ScorpeonStringQuoted              String
+	hi def link ScorpeonStringQuotedSingle        String
+	hi def link ScorpeonStringQuotedDouble        String
+	hi def link ScorpeonStringQuotedTriple        String
+	hi def link ScorpeonStringUnquoted            String
+	hi def link ScorpeonStringInterpolated        String
+	hi def link ScorpeonStringRegexp              String
+
+	hi def link ScorpeonSupport                   Identifier
+	hi def link ScorpeonSupportFunction           Function
+	hi def link ScorpeonSupportClass              Type
+	hi def link ScorpeonSupportType               Typedef
+	hi def link ScorpeonSupportConstant           Constant
+	hi def link ScorpeonSupportVariable           Identifier
+
+	hi def link ScorpeonVariable                  Identifier
+	hi def link ScorpeonVariableParameter         Identifier
+	hi def link ScorpeonVariableLanguage          Identifier
+<
+
+
+==============================================================================
+ADVANCED SETTINGS                                   *scorpeon-advanced-settings*
+
+
+------------------------------------------------------------------------------
+Managing extensions with dein.vim ~
+	They are repositories on github and can be installed as a plugin (but
+	not added to runtimepath).
+
+	In vimrc
+>
+	let $CACHE = expand('~/.cache')
+	let g:scorpeon_extensions_path = [
+	  \ expand('$CACHE/vscode/extensions'),
+	  \ expand('$CACHE/scorpeon'),
+	  \ ]
+<
+	In toml
+>
+	[[plugins]]
+	repo = 'microsoft/vscode'
+	if = 0
+	merged = 0
+	type__depth = 1
+	path = '$CACHE/vscode'
+
+	[[plugins]]
+	repo = 'oovm/vscode-toml'
+	if = 0
+	merged = 0
+	type__depth = 1
+	path = '$CACHE/scorpeon/toml'
+
+	[[plugins]]
+	repo = 'emilast/vscode-logfile-highlighter'
+	if = 0
+	merged = 0
+	type__depth = 1
+	path = '$CACHE/scorpeon/log'
+<
+
+
+vim:tw=78:ts=8:noet:ft=help:norl:

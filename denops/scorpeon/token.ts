@@ -136,22 +136,22 @@ export class Tokenizer {
     return [languages, grammars];
   }
 
-  async getScopeName(filepath: string): Promise<string> {
+  getScopeName(filepath: string): Promise<string> {
     const language = this.languages
       .filter((v) => v.extensions.some((ext) => filepath.endsWith(ext)))
       ?.[0]
       ?.id;
     if (language == null) {
-      throw new Error(`Path with unknown extensions: ${filepath}`);
+      return Promise.reject(`Path with unknown extensions: ${filepath}`);
     }
     const scopeName = this.grammars
       .filter((v) => v.language === language)
       ?.[0]
       ?.scopeName;
     if (scopeName == null) {
-      throw new Error(`Unknown language: ${language}`);
+      return Promise.reject(`Unknown language: ${language}`);
     }
-    return await Promise.resolve(scopeName);
+    return Promise.resolve(scopeName);
   }
 
   async parse(
@@ -178,7 +178,7 @@ export class Tokenizer {
     }
 
     return await this.registry.loadGrammar(scopeName)
-      .then((grammar): [Token[], number] => {
+      .then((grammar: IRawGrammar | null): [Token[], number] => {
         if (grammar == null) {
           return [[], 0];
         }

@@ -1,7 +1,6 @@
 import {
   Denops,
   expandGlobSync,
-  fromFileUrl,
   IRawGrammar,
   join,
   oniguruma,
@@ -89,9 +88,16 @@ export class Tokenizer {
   }
 
   async getOnigLib(): Promise<vsctm.IOnigLib> {
-    const __dirname = fromFileUrl(new URL(".", import.meta.url));
+    const npmDir = await getNpmDir();
     const wasmBin = Deno.readFileSync(
-      join(__dirname, "..", "..", "bin", "onig.wasm"),
+      join(
+        npmDir,
+        "registry.npmjs.org",
+        "vscode-oniguruma",
+        "1.6.2",
+        "release",
+        "onig.wasm",
+      ),
     );
     return await oniguruma.loadWASM(wasmBin).then(() => {
       return {
@@ -208,6 +214,24 @@ export class Tokenizer {
       });
   }
 }
+
+const getNpmDir = async (): Promise<string> => {
+  const process = Deno.run({
+    cmd: ["deno", "info"],
+    stdout: "piped",
+    stderr: "piped",
+  });
+  const output = await process.output();
+  process.close();
+
+  const head = "npm modules cache: ";
+
+  return new TextDecoder()
+    .decode(output)
+    .split("\n")
+    .filter((line) => line.startsWith(head))[0]
+    .replace(head, "");
+};
 
 const toByteIndex = (str: string, idx: number): number => {
   return (new TextEncoder()).encode(str.slice(0, idx)).length;

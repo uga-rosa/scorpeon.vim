@@ -4,7 +4,7 @@
 
 # scorpeon.vim
 
-Syntax highlight using VSCode's json/plist as is.
+Syntax highlight using VSCode's textmate grammar as is.
 
 VSCode is the most popular editor in the world and is officially supported by the largest number of language developers.
 This plugin allows VSCode's syntax highlighting definitions to be used directly in vim/neovim.

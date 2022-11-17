@@ -88,14 +88,13 @@ export class Tokenizer {
   }
 
   async getOnigLib(): Promise<vsctm.IOnigLib> {
-    const cache = cache_dir();
-    if (cache == null) {
-      return Promise.reject("Can't get cache directory");
+    const denoDir = getDenoDir();
+    if (denoDir == null) {
+      return Promise.reject("Can't get deno directory");
     }
     const wasmBin = Deno.readFileSync(
       join(
-        cache,
-        "deno",
+        denoDir,
         "npm",
         "registry.npmjs.org",
         "vscode-oniguruma",
@@ -219,6 +218,17 @@ export class Tokenizer {
       });
   }
 }
+
+const getDenoDir = () => {
+  const DENO_DIR = Deno.env.get("DENO_DIR");
+  if (DENO_DIR) {
+    return DENO_DIR;
+  }
+  const cache = cache_dir();
+  if (cache) {
+    return join(cache, "deno");
+  }
+};
 
 const toByteIndex = (str: string, idx: number): number => {
   return (new TextEncoder()).encode(str.slice(0, idx)).length;

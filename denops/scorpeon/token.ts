@@ -1,57 +1,11 @@
-import {
-  cache_dir,
-  Denops,
-  expandGlobSync,
-  join,
-  oniguruma,
-  vsctm,
-} from "./deps.ts";
+import { cache_dir, Denops, join, oniguruma, vsctm } from "./deps.ts";
+import { Grammar, Language, readPackageJsons } from "./json.ts";
 
 export interface Token {
   line: number;
   column: number;
   length: number;
   scopes: string[];
-}
-
-interface Language {
-  id: string;
-  extensions: string[];
-}
-
-const isLanguage = (obj: unknown): obj is Language => {
-  return obj !== null &&
-    typeof obj === "object" &&
-    "id" in obj &&
-    "extensions" in obj;
-};
-
-interface Grammar {
-  language: string;
-  scopeName: string;
-  path: string;
-}
-
-const isGrammar = (obj: unknown): obj is Grammar => {
-  return obj !== null &&
-    typeof obj === "object" &&
-    "language" in obj &&
-    "scopeName" in obj &&
-    "path" in obj;
-};
-
-interface PackageJson {
-  contributes?: {
-    languages?: {
-      id?: string;
-      extensions?: string[];
-    }[];
-    grammars?: {
-      language?: string;
-      scopeName?: string;
-      path?: string;
-    }[];
-  };
 }
 
 interface PrevData {
@@ -69,7 +23,7 @@ export class Tokenizer {
 
   constructor(denops: Denops, dirs: string[]) {
     this.denops = denops;
-    [this.languages, this.grammars] = this.readPackageJsons(dirs);
+    [this.languages, this.grammars] = readPackageJsons(dirs);
     this.registry = new vsctm.Registry({
       onigLib: this.getOnigLib(),
       loadGrammar: async (scopeName: string) => {
@@ -113,37 +67,6 @@ export class Tokenizer {
         },
       };
     });
-  }
-
-  readPackageJsons(dirs: string[]): [Language[], Grammar[]] {
-    let languages: Language[] = [];
-    let grammars: Grammar[] = [];
-    for (const dir of dirs) {
-      for (const entry of expandGlobSync(`${dir}/*/package.json`)) {
-        const text = Deno.readTextFileSync(entry.path);
-        const jsonData: PackageJson = JSON.parse(text);
-        const _languages = jsonData
-          ?.contributes
-          ?.languages
-          ?.filter(isLanguage);
-        if (_languages) {
-          languages = [...languages, ..._languages];
-        }
-        const _grammars = jsonData
-          ?.contributes
-          ?.grammars
-          ?.filter(isGrammar)
-          .map((v) => {
-            v.path = join(entry.path, "..", v.path);
-            return v;
-          });
-        if (_grammars) {
-          grammars = [...grammars, ..._grammars];
-        }
-      }
-    }
-    grammars = grammars.sort((a, b) => a.scopeName.length - b.scopeName.length);
-    return [languages, grammars];
   }
 
   getScopeName(filepath: string): Promise<string> {

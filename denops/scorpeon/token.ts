@@ -106,38 +106,38 @@ export class Tokenizer {
       return [prevData.tokens, start];
     } else {
       // token.line is 1-index, start is 0-index
-      prevData.tokens = prevData.tokens.filter((token) => token.line < start + 1);
+      prevData.tokens = prevData.tokens.filter((token) =>
+        token.line < start + 1
+      );
     }
 
-    return await this.registry.loadGrammar(scopeName)
-      .then((grammar: vsctm.IGrammar | null): [Token[], number] => {
-        if (grammar == null) {
-          return [[], 0];
-        }
-        const tokens = [];
-        let ruleStack = prevData.stacks[start - 1] ||
-          vsctm.INITIAL;
-        for (let i = start; i < lines.length; i++) {
-          const line = lines[i];
-          const lineTokens = grammar.tokenizeLine(line, ruleStack);
-          for (const itoken of lineTokens.tokens) {
-            const startIndex = toByteIndex(line, itoken.startIndex);
-            const endIndex = toByteIndex(line, itoken.endIndex);
-            const token = {
-              line: i + 1,
-              column: startIndex + 1,
-              length: endIndex - startIndex,
-              scopes: itoken.scopes,
-            };
-            tokens.push(token);
-            prevData.tokens.push(token);
-          }
-          ruleStack = lineTokens.ruleStack;
-          prevData.stacks[i] = lineTokens.ruleStack;
-        }
-        prevData.lines = lines;
-        return [tokens, start];
-      });
+    const grammar = await this.registry.loadGrammar(scopeName);
+    if (grammar == null) {
+      return [[], 0];
+    }
+
+    const tokens = [];
+    let ruleStack = prevData.stacks[start - 1] || vsctm.INITIAL;
+    for (let i = start; i < lines.length; i++) {
+      const line = lines[i];
+      const lineTokens = grammar.tokenizeLine(line, ruleStack);
+      for (const itoken of lineTokens.tokens) {
+        const startIndex = toByteIndex(line, itoken.startIndex);
+        const endIndex = toByteIndex(line, itoken.endIndex);
+        const token = {
+          line: i + 1,
+          column: startIndex + 1,
+          length: endIndex - startIndex,
+          scopes: itoken.scopes,
+        };
+        tokens.push(token);
+        prevData.tokens.push(token);
+      }
+      ruleStack = lineTokens.ruleStack;
+      prevData.stacks[i] = lineTokens.ruleStack;
+    }
+    prevData.lines = lines;
+    return [tokens, start];
   }
 }
 

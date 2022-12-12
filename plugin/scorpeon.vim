@@ -16,9 +16,9 @@ let g:scorpeon_highlight = get(g:, 'scorpeon_highlight', {})
 let g:scorpeon_highlight.enable = get(g:scorpeon_highlight, 'enable', v:false)
 let g:scorpeon_highlight.disable = get(g:scorpeon_highlight, 'disable', [])
 
-augroup scorpeonHighlight
+augroup Scorpeon
   autocmd!
-  autocmd FileType * call scorpeon#auto_highlight()
+  autocmd BufRead,BufNewFile * call scorpeon#auto_highlight()
 augroup END
 
 command! ScorpeonHighlightEnable call scorpeon#enable()

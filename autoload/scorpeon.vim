@@ -43,7 +43,7 @@ function! s:highlight_start_async() abort
 endfunction
 
 function! s:highlight_start() abort
-  call s:debounce('start', { -> s:highlight_start_async() }, 100)
+  call s:debounce('start', { -> s:highlight_start_async() }, 0)
 endfunction
 
 function! s:highlight_update_async() abort

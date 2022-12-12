@@ -4,12 +4,10 @@ import { Token } from "./token.ts";
 export type Rule = { [scopeName: string]: string };
 
 export class Highlight {
-  denops: Denops;
   bufnr: number;
   ruleArray: { scope: string; hlGroup: string }[];
 
-  constructor(denops: Denops, bufnr: number, spc_rule: Rule) {
-    this.denops = denops;
+  constructor(bufnr: number, spc_rule: Rule) {
     this.bufnr = bufnr;
     const rules = { ...defaultRule, ...spc_rule };
     this.ruleArray = Object.keys(rules)
@@ -22,7 +20,7 @@ export class Highlight {
       });
   }
 
-  async set(tokens: Token[]) {
+  async set(denops: Denops, tokens: Token[]) {
     const decorations = [];
     for (const token of tokens) {
       const hlGroup = this.getHighlightGroup(token.scopes);
@@ -35,8 +33,8 @@ export class Highlight {
         });
       }
     }
-    await decorate(this.denops, this.bufnr, decorations);
-    await this.denops.redraw(false);
+    await decorate(denops, this.bufnr, decorations);
+    await denops.redraw(false);
   }
 
   getHighlightGroup(scopes: string[]): string | undefined {

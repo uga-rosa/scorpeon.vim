@@ -47,17 +47,18 @@ export async function main(denops: Denops): Promise<void> {
             lines,
           );
           const spc_rule = user_rule[scopeName] || {};
-          const highlight = new Highlight(denops, bufnr, spc_rule);
+          const highlight = new Highlight(bufnr, spc_rule);
           if (start >= 0) {
             await denops.call("scorpeon#clear", start, end);
             await highlight.set(
+              denops,
               tokens.filter((t) => start <= t.line && t.line <= end),
             );
           } else {
             // No change
             // Re-highlight entire buffer
             await denops.call("scorpeon#clear", 0, -1);
-            await highlight.set(tokens);
+            await highlight.set(denops, tokens);
           }
         })
         .catch((e) => {

@@ -1,105 +1,97 @@
 import {
+  assertArray,
+  assertNumber,
+  assertObject,
+  assertString,
+  batch,
   Denops,
-  ensureArray,
-  ensureNumber,
-  ensureObject,
-  ensureString,
   g,
+  gather,
 } from "./deps.ts";
 import { Highlight, Rule } from "./highlight.ts";
 import { Tokenizer } from "./token.ts";
 
 export async function main(denops: Denops): Promise<void> {
-  const extensions_path = ensureArray<string>(
-    await g.get(
-      denops,
-      "scorpeon_extensions_path",
-    ),
-  );
-  const tokenizer = new Tokenizer(extensions_path);
-  const user_rule = ensureObject<Rule>(
-    await g.get(
-      denops,
-      "scorpeon_rule",
-    ),
-  );
+  const [extensionPath, userRule] = await gather(denops, async (denops) => {
+    await g.get(denops, "scorpeon_extensions_path");
+    await g.get(denops, "scorpeon_rule");
+  }) as [unknown, unknown];
+
+  assertArray<string>(extensionPath);
+  assertObject<Rule>(userRule);
+
+  const tokenizer = new Tokenizer(extensionPath);
 
   denops.dispatcher = {
     async highlight(
-      bufnr_u: unknown,
-      path_u: unknown,
-      lines_u: unknown,
-      end_u: unknown,
+      bufnr: unknown,
+      path: unknown,
+      lines: unknown,
+      end: unknown,
     ): Promise<void> {
-      const bufnr = ensureNumber(bufnr_u);
-      const path = ensureString(path_u);
-      const end = ensureNumber(end_u);
-      const lines = ensureArray<string>(lines_u);
+      assertNumber(bufnr);
+      assertString(path);
+      assertArray<string>(lines);
+      assertNumber(end);
       if (!fileExists(path)) {
         return;
       }
 
-      await tokenizer.getScopeName(path)
-        .then(async (scopeName) => {
-          const [tokens, start] = await tokenizer.parse(
-            bufnr,
-            scopeName,
-            lines,
-          );
-          const spc_rule = user_rule[scopeName] || {};
-          const highlight = new Highlight(denops, bufnr, spc_rule);
-          if (start >= 0) {
-            await denops.call("scorpeon#clear", start, end);
-            await highlight.set(
-              tokens.filter((t) => start <= t.line && t.line <= end),
-            );
-          } else {
-            // No change
-            // Re-highlight entire buffer
-            await denops.call("scorpeon#clear", 0, -1);
-            await highlight.set(tokens);
-          }
-        })
-        .catch((e) => {
-          console.log(`[scorpeon.vim] ${e}`);
-          denops.cmd("set syntax=ON");
-        });
+      const scopeName = await tokenizer.getScopeName(path);
+      const [tokens, start] = await tokenizer.parse(
+        bufnr,
+        scopeName,
+        lines,
+      );
+      const spcRule = userRule[scopeName] || {};
+      const highlight = new Highlight(bufnr, spcRule);
+      if (start >= 0) {
+        await denops.call("scorpeon#clear", start, end);
+        await highlight.set(
+          denops,
+          tokens.filter((t) => start <= t.line && t.line <= end),
+        );
+      } else {
+        // No change
+        // Re-highlight entire buffer
+        await denops.call("scorpeon#clear", 0, -1);
+        await highlight.set(denops, tokens);
+      }
     },
+
     async showScope(
-      bufnr_u: unknown,
-      path_u: unknown,
-      lines_u: unknown,
+      bufnr: unknown,
+      path: unknown,
+      lines: unknown,
     ): Promise<void> {
-      const bufnr = ensureNumber(bufnr_u);
-      const path = ensureString(path_u);
-      const lines = ensureArray<string>(lines_u);
+      assertNumber(bufnr);
+      assertString(path);
+      assertArray<string>(lines);
+
       if (!fileExists(path)) {
         return;
       }
 
-      await tokenizer.getScopeName(path)
-        .then(async (scopeName) => {
-          const [tokens] = await tokenizer.parse(bufnr, scopeName, lines);
-          denops.cmd("vnew");
-          denops.cmd("set buftype=nofile");
-          denops.cmd("setf scorpeon");
-          denops.call("setline", 1, `scopeName: ${scopeName}`);
-          denops.call(
-            "setline",
-            2,
-            tokens.flatMap((token) => {
-              const scopes = token.scopes.join(", ");
-              const range =
-                `\t[${token.line}, ${token.column}] - [${token.line}, ${
-                  token.column + token.length
-                }]`;
-              return [scopes, range];
-            }),
-          );
-        })
-        .catch((e) => {
-          console.log(`[scorpeon.vim] ${e}`);
-        });
+      const scopeName = await tokenizer.getScopeName(path);
+      const [tokens] = await tokenizer.parse(bufnr, scopeName, lines);
+      await batch(denops, async (denops) => {
+        await denops.cmd("vnew");
+        await denops.cmd("set buftype=nofile");
+        await denops.cmd("setf scorpeon");
+        await denops.call("setline", 1, `scopeName: ${scopeName}`);
+        await denops.call(
+          "setline",
+          2,
+          tokens.flatMap((token) => {
+            const scopes = token.scopes.join(", ");
+            const range =
+              `\t[${token.line}, ${token.column}] - [${token.line}, ${
+                token.column + token.length
+              }]`;
+            return [scopes, range];
+          }),
+        );
+      });
     },
   };
 }

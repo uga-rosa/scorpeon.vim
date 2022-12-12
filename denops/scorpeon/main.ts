@@ -59,7 +59,7 @@ export async function main(denops: Denops): Promise<void> {
         }
       } catch (e) {
         console.log(`[scorpeon.vim] ${e}`);
-        denops.call("scorpeon#disable")
+        denops.call("scorpeon#disable");
       }
     },
 

@@ -58,7 +58,7 @@ export const readPackageJsons = (dirs: string[]): [Language[], Grammar[]] => {
         ?.contributes
         ?.grammars
         ?.filter(isGrammar)
-        .map((v) => {
+        ?.map((v) => {
           v.path = join(entry.path, "..", v.path);
           return v;
         });

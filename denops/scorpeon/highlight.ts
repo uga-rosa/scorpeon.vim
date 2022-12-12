@@ -36,6 +36,7 @@ export class Highlight {
       }
     }
     await decorate(this.denops, this.bufnr, decorations);
+    await this.denops.redraw(false);
   }
 
   getHighlightGroup(scopes: string[]): string | undefined {

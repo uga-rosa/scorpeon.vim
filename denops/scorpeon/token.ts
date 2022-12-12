@@ -105,7 +105,8 @@ export class Tokenizer {
       // No change
       return [prevData.tokens, start];
     } else {
-      prevData.tokens = prevData.tokens.filter((token) => token.line < start);
+      // token.line is 1-index, start is 0-index
+      prevData.tokens = prevData.tokens.filter((token) => token.line < start + 1);
     }
 
     return await this.registry.loadGrammar(scopeName)

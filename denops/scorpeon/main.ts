@@ -16,7 +16,7 @@ export async function main(denops: Denops): Promise<void> {
       "scorpeon_extensions_path",
     ),
   );
-  const tokenizer = new Tokenizer(denops, extensions_path);
+  const tokenizer = new Tokenizer(extensions_path);
   const user_rule = ensureObject<Rule>(
     await g.get(
       denops,

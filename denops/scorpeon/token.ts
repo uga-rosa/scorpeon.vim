@@ -1,4 +1,4 @@
-import { cache_dir, Denops, join, oniguruma, vsctm } from "./deps.ts";
+import { cache_dir, join, oniguruma, vsctm } from "./deps.ts";
 import { Grammar, Language, readPackageJsons } from "./json.ts";
 
 export interface Token {
@@ -15,14 +15,12 @@ interface PrevData {
 }
 
 export class Tokenizer {
-  denops: Denops;
   languages: Language[];
   grammars: Grammar[];
   registry: vsctm.Registry;
   prevDatas: { [bufnr: number]: PrevData };
 
-  constructor(denops: Denops, dirs: string[]) {
-    this.denops = denops;
+  constructor(dirs: string[]) {
     [this.languages, this.grammars] = readPackageJsons(dirs);
     this.registry = new vsctm.Registry({
       onigLib: this.getOnigLib(),

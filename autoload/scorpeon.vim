@@ -1,28 +1,9 @@
-if has('nvim')
-  " 0-index
-  function! scorpeon#clear(start, end) abort
-    let ns = nvim_create_namespace('denops_std:buffer:decoration:decorate')
-    call nvim_buf_clear_namespace(0, ns, a:start, a:end)
-  endfunction
-
-  function! s:get_all_lines() abort
-    return nvim_buf_get_lines(0, 0, -1, v:false)
-  endfunction
-else
-  " 0-index
-  function! scorpeon#clear(start, end) abort
-    let start = a:start + 1
-    let end = a:end == -1 ? line('$') : a:end + 1
-    call prop_clear(start, end)
-  endfunction
-
-  function! s:get_all_lines() abort
-    return getline(1, '$')
-  endfunction
-endif
+function! s:get_all_lines() abort
+  return getline(1, '$')
+endfunction
 
 function! s:clear() abort
-  call scorpeon#clear(0, -1)
+  call denops#request('scorpeon', 'undecorate', [bufnr(), 0, -1])
 endfunction
 
 let s:scorpeon_timer = {}

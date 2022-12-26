@@ -1,5 +1,6 @@
 import {
   assertArray,
+  assertBoolean,
   assertNumber,
   assertObject,
   assertString,
@@ -40,11 +41,13 @@ export async function main(denops: Denops): Promise<void> {
       path: unknown,
       lines: unknown,
       end: unknown,
+      refresh: unknown,
     ): Promise<void> {
       assertNumber(bufnr);
       assertString(path);
       assertArray<string>(lines);
       assertNumber(end);
+      assertBoolean(refresh);
       if (!fileExists(path)) {
         return;
       }
@@ -58,15 +61,19 @@ export async function main(denops: Denops): Promise<void> {
         const spcRule = userRule[scopeName] || {};
         const highlight = new Highlight(bufnr, spcRule);
         if (start >= 0) {
-          await undecorate(denops, 0, start, end)
+          if (refresh) {
+            await undecorate(denops, 0, start, end);
+          }
           await highlight.set(
             denops,
             tokens.filter((t) => start <= t.line && t.line <= end),
           );
         } else {
           // No change
-          // Re-highlight entire buffer
-          await undecorate(denops, 0)
+          if (refresh) {
+            // Re-highlight entire buffer
+            await undecorate(denops, 0);
+          }
           await highlight.set(denops, tokens);
         }
       } catch (e) {

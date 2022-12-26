@@ -20,6 +20,7 @@ export {
   assertNumber,
   assertObject,
   assertString,
-} from "https://deno.land/x/unknownutil@v2.0.0/mod.ts";
+  assertBoolean,
+} from "https://deno.land/x/unknownutil@v2.1.0/mod.ts";
 
 export { default as cache_dir } from "https://deno.land/x/dir@1.5.1/cache_dir/mod.ts";

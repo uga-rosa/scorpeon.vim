@@ -20,31 +20,33 @@ function! s:highlight_start_async() abort
   let lines = s:get_all_lines()
   let end = line('$')
   call denops#plugin#wait_async('scorpeon', {
-        \ -> denops#notify('scorpeon', 'highlight', [buf, path, lines, end]) })
+        \ -> denops#notify('scorpeon', 'highlight', [buf, path, lines, end, v:true]) })
 endfunction
 
 function! s:highlight_start() abort
   call s:debounce('start', { -> s:highlight_start_async() }, 0)
 endfunction
 
-function! s:highlight_update_async() abort
+function! s:highlight_update_async(refresh) abort
+  echom 'hi'
   let buf = bufnr()
   let path = expand('%:p')
   let lines = s:get_all_lines()
   let end = line('w$')
   call denops#plugin#wait_async('scorpeon', {
-        \ -> denops#notify('scorpeon', 'highlight', [buf, path, lines, end]) })
+        \ -> denops#notify('scorpeon', 'highlight', [buf, path, lines, end, a:refresh]) })
 endfunction
 
-function! s:highlight_update() abort
-  call s:debounce('update', { -> s:highlight_update_async() }, 100)
+function! s:highlight_update(refresh) abort
+  call s:debounce('update', { -> s:highlight_update_async(a:refresh) }, 100)
 endfunction
 
 function! scorpeon#enable() abort
   augroup Scorpeon
     autocmd! * <buffer>
-    autocmd TextChanged,TextChangedI,TextChangedP
-          \ <buffer> call s:highlight_update()
+    autocmd TextChanged,TextChangedI,TextChangedP,WinScrolled
+          \ <buffer> call s:highlight_update(v:false)
+    autocmd CursorHold <buffer> call s:highlight_update(v:true)
   augroup END
   call s:clear()
   call s:highlight_start()

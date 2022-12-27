@@ -12,6 +12,8 @@ import {
 } from "./deps.ts";
 import { Highlight, Rule } from "./highlight.ts";
 import { Tokenizer } from "./token.ts";
+import { install } from "./install.ts";
+import { fileExists } from "./utils.ts";
 
 export async function main(denops: Denops): Promise<void> {
   const [extensionPath, userRule] = await gather(denops, async (denops) => {
@@ -119,14 +121,10 @@ export async function main(denops: Denops): Promise<void> {
         console.log(`[scorpeon.vim] ${e}`);
       }
     },
+
+    async install(input: unknown): Promise<void> {
+      assertString(input);
+      await install(denops, input, extensionPath[0]);
+    },
   };
 }
-
-const fileExists = (filepath: string): boolean => {
-  try {
-    const file = Deno.statSync(filepath);
-    return file.isFile;
-  } catch {
-    return false;
-  }
-};

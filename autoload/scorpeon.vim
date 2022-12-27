@@ -82,3 +82,7 @@ function! scorpeon#show_scope() abort
   let lines = s:get_all_lines()
   call denops#request('scorpeon', 'showScope', [buf, path, lines])
 endfunction
+
+function! scorpeon#install(input) abort
+  call denops#notify('scorpeon', 'install', [a:input])
+endfunction

@@ -24,6 +24,7 @@ augroup END
 command! ScorpeonHighlightEnable call scorpeon#enable()
 command! ScorpeonHighlightDisable call scorpeon#disable()
 command! ScorpeonShowScope call scorpeon#show_scope()
+command! -nargs=1 ScorpeonInstall call scorpeon#install(<q-args>)
 
 " https://macromates.com/manual/en/language_grammars
 " :h group-name

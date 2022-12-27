@@ -32,16 +32,22 @@ COMMANDS                                                     *scorpeon-commands*
 	definition file not found), `set syntax=ON` is fallback. See |'syntax'|.
 
 
-                                                      *ScorpeonHighlightDisable*
+                                                     *:ScorpeonHighlightDisable*
 :ScorpeonHighlightDisable ~
 	Disable syntax highlight on the current buffer. `set syntax=ON` is
 	automatically called.
 
 
-                                                             *ScorpeonShowScope*
+                                                            *:ScorpeonShowScope*
 :ScorpeonShowScope ~
 	The results of the parse of the current buffer are displayed. This is
 	useful for set highlight groups.
+
+
+                                                              *:ScorpeonInstall*
+:ScorpeonInstall ~
+	Install extensions via open-vsx. They will be installed in 
+	|g:scorpeon_extensions_path| (the first one in the case of an array).
 
 
 ==============================================================================

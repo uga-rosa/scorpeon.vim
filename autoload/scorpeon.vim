@@ -28,7 +28,6 @@ function! s:highlight_start() abort
 endfunction
 
 function! s:highlight_update_async(refresh) abort
-  echom 'hi'
   let buf = bufnr()
   let path = expand('%:p')
   let lines = s:get_all_lines()

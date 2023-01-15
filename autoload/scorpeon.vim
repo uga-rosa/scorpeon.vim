@@ -3,7 +3,8 @@ function! s:get_all_lines() abort
 endfunction
 
 function! s:clear() abort
-  call denops#request('scorpeon', 'undecorate', [bufnr(), 0, -1])
+  call denops#plugin#wait_async('scorpeon', {
+        \ -> denops#notify('scorpeon', 'undecorate', [bufnr(), 0, -1]) })
 endfunction
 
 let s:scorpeon_timer = {}

@@ -64,7 +64,7 @@ In the following example, it is only enabled when the file type is `typescript` 
 let g:scorpeon_highlight = {
       \ 'enable': ['typescript', 'nim'],
       \ 'disable': { -> getfsize(expand('%')) > 1 * 1024 * 1024 }
-      \ }
+      \}
 ```
 
 # Customize
@@ -78,10 +78,10 @@ For example, the following configuration will highlight commented parts of types
 
 ```vim
 let g:scorpeon_rule = {
-\    'source.ts': {
-\        'comment': 'Error'
-\    }
-\}
+      \ 'source.ts': {
+      \   'comment': 'Error'
+      \ }
+      \}
 ```
 
 This command is useful to find out the scope name.

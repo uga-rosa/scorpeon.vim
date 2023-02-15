@@ -93,7 +93,7 @@ g:scorpeon_highlight ~
 	let g:scorpeon_highlight = {
 	      \ 'enable': ['typescript', 'nim'],
 	      \ 'disable': { -> getfsize(expand('%')) > 1 * 1024 * 1024 }
-	      \ }
+	      \}
 <
 
                                                                *g:scorpeon_rule*
@@ -104,10 +104,10 @@ g:scorpeon_rule ~
 	parts of typescript with Error.
 >
 	let g:scorpeon_rule = {
-	\    'source.ts': {
-	\        'comment': 'Error'
-	\    }
-	\}
+	      \ 'source.ts': {
+	      \   'comment': 'Error'
+	      \ }
+	      \}
 <
 
 
@@ -192,9 +192,9 @@ Managing extensions with dein.vim ~
 >
 	let $CACHE = expand('~/.cache')
 	let g:scorpeon_extensions_path = [
-	  \ expand('$CACHE/vscode/extensions'),
-	  \ expand('$CACHE/scorpeon'),
-	  \ ]
+	      \ expand('$CACHE/vscode/extensions'),
+	      \ expand('$CACHE/scorpeon'),
+	      \]
 <
 	In toml
 >
